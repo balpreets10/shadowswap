@@ -15,7 +15,6 @@ class CharacterManager {
 
         // Set initial states
         this.activateMain();
-        this.shadowCharacter.setFollowTarget(this.mainCharacter);
     }
 
     update(inputManager) {
@@ -54,9 +53,8 @@ class CharacterManager {
     activateMain() {
         this.activeCharacter = 'main';
 
-        // Visual feedback
-        this.mainCharacter.sprite.setAlpha(1);
-        this.mainCharacter.sprite.setTint(0xffffff);
+        // Properly activate/deactivate characters
+        this.mainCharacter.activate();
         this.shadowCharacter.deactivate();
 
         // Camera follows main character
@@ -69,9 +67,8 @@ class CharacterManager {
     activateShadow() {
         this.activeCharacter = 'shadow';
 
-        // Visual feedback
-        this.mainCharacter.sprite.setAlpha(0.4);
-        this.mainCharacter.sprite.setTint(0x888888);
+        // Properly activate/deactivate characters
+        this.mainCharacter.deactivate();
         this.shadowCharacter.activate();
 
         // Camera follows shadow

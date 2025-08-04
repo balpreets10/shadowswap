@@ -57,7 +57,6 @@ class Shadow {
         this.facingDirection = 1;
         this.movementState = 'idle';
         this.isActive = false;
-        this.followTarget = null;
         this.trailEmitter = null; // Initialize as null
         this.glowEffect = null; // Initialize as null
     }
@@ -111,10 +110,9 @@ class Shadow {
     }
 
     update(inputManager) {
+        // Only handle input when active, otherwise stay idle
         if (this.isActive) {
             this.handleInput(inputManager);
-        } else if (this.followTarget) {
-            this.followMainCharacter();
         }
 
         this.updateAnimations();
@@ -149,23 +147,6 @@ class Shadow {
         }
 
         this.sprite.setFlipX(this.facingDirection === -1);
-    }
-
-    followMainCharacter() {
-        if (!this.followTarget) return;
-
-        const target = this.followTarget.getPosition();
-        const shadowPos = this.getPosition();
-        const distance = Phaser.Math.Distance.Between(shadowPos.x, shadowPos.y, target.x, target.y);
-
-        // Only follow if distance is significant
-        if (distance > 100) {
-            const speed = 3;
-            const angle = Phaser.Math.Angle.Between(shadowPos.x, shadowPos.y, target.x, target.y);
-
-            this.sprite.x += Math.cos(angle) * speed;
-            this.sprite.y += Math.sin(angle) * speed;
-        }
     }
 
     updateAnimations() {
@@ -229,10 +210,6 @@ class Shadow {
 
             this.scene.time.delayedCall(400, () => emitter.destroy());
         }
-    }
-
-    setFollowTarget(target) {
-        this.followTarget = target;
     }
 
     getPosition() {
