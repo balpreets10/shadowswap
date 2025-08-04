@@ -51,10 +51,28 @@ class Player {
         this.isGrounded = false;
         this.facingDirection = 1; // 1 for right, -1 for left
         this.movementState = 'idle';
+        this.isActive = true; // Add active state
+    }
+
+    // Add activation methods
+    activate() {
+        this.isActive = true;
+        this.sprite.setAlpha(1);
+        this.sprite.setTint(0xffffff);
+    }
+
+    deactivate() {
+        this.isActive = false;
+        this.sprite.setAlpha(0.4);
+        this.sprite.setTint(0x888888);
     }
 
     update(inputManager) {
-        this.handleInput(inputManager);
+        // Only handle input when active
+        if (this.isActive) {
+            this.handleInput(inputManager);
+        }
+
         this.updateAnimations();
         this.updatePhysics();
     }
