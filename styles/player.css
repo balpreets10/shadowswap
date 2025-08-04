@@ -1,22 +1,26 @@
-/* Player CSS */
+/* Player-specific CSS */
 .player .debug-info {
-    color: #00ff00;
-    font-size: 12px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 5px;
-    border-radius: 3px;
+    color: #4CAF50;
+    font-size: 11px;
+    background: rgba(76, 175, 80, 0.1);
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(76, 175, 80, 0.3);
 }
 
 .player .health-bar {
-    width: 50px;
-    height: 6px;
-    background: #ff0000;
-    border: 1px solid #fff;
-    margin-top: 5px;
+    width: 60px;
+    height: 8px;
+    background: linear-gradient(90deg, #ff4444 0%, #ff6666 100%);
+    border: 2px solid #fff;
+    border-radius: 4px;
+    margin-top: 6px;
+    overflow: hidden;
 }
 
 .player .health-fill {
     height: 100%;
-    background: #00ff00;
+    background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 100%);
     transition: width 0.3s ease;
+    border-radius: 2px;
 }

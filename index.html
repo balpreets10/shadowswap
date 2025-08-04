@@ -8,14 +8,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/player.css">
+    <link rel="stylesheet" href="styles/shadow.css">
 </head>
 
 <body>
     <div id="game-container">
         <div id="game-canvas"></div>
         <div id="ui-overlay">
-            <div class="ui-debug">
-                <span>Use WASD or Arrow Keys to move, SPACE to jump</span>
+            <div class="character-indicators">
+                <div class="character-indicator active" id="main-indicator">
+                    <div class="icon main"></div>
+                    <span class="label">Main</span>
+                </div>
+                <div class="character-indicator" id="shadow-indicator">
+                    <div class="icon shadow"></div>
+                    <span class="label">Shadow</span>
+                </div>
+            </div>
+
+            <div class="controls-info">
+                <h3>Controls</h3>
+                <div class="control-item">
+                    <span class="key">WASD</span>
+                    <span>Move Character</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">SPACE</span>
+                    <span>Jump</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">F</span>
+                    <span>Switch Characters</span>
+                </div>
             </div>
         </div>
     </div>
@@ -24,9 +48,11 @@
     <script src="js/managers/InputManager.js"></script>
     <script src="js/managers/AssetManager.js"></script>
     <script src="js/managers/GameStateManager.js"></script>
+    <script src="js/managers/CharacterManager.js"></script>
 
     <!-- Game Objects -->
     <script src="js/entities/Player.js"></script>
+    <script src="js/entities/Shadow.js"></script>
     <script src="js/entities/Platform.js"></script>
 
     <!-- Scenes -->
@@ -41,6 +67,23 @@
 
         // Global game instance for debugging
         window.shadowSwapGame = game;
+
+        // Character indicator updates
+        window.addEventListener('load', () => {
+            const mainIndicator = document.getElementById('main-indicator');
+            const shadowIndicator = document.getElementById('shadow-indicator');
+
+            // Listen for character switch events (if needed for additional UI updates)
+            document.addEventListener('characterSwitch', (event) => {
+                if (event.detail.activeCharacter === 'main') {
+                    mainIndicator.classList.add('active');
+                    shadowIndicator.classList.remove('active', 'shadow');
+                } else {
+                    shadowIndicator.classList.add('active', 'shadow');
+                    mainIndicator.classList.remove('active');
+                }
+            });
+        });
     </script>
 </body>
 

@@ -5,9 +5,10 @@
 }
 
 body {
-    background: #1a1a1a;
-    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+    font-family: 'Segoe UI', 'Arial', sans-serif;
     overflow: hidden;
+    color: #ffffff;
 }
 
 #game-container {
@@ -17,11 +18,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    background: radial-gradient(ellipse at center, rgba(156, 39, 176, 0.1) 0%, transparent 70%);
 }
 
 #game-canvas {
-    border: 2px solid #333;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    border: 3px solid #9C27B0;
+    border-radius: 8px;
+    box-shadow:
+        0 0 30px rgba(156, 39, 176, 0.3),
+        inset 0 0 20px rgba(0, 0, 0, 0.2);
+    background: #1a1a2e;
 }
 
 #ui-overlay {
@@ -37,33 +43,157 @@ body {
 .ui-debug {
     position: absolute;
     top: 20px;
-    left: 20px;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 10px;
-    border-radius: 5px;
+    right: 20px;
+    color: #00ff88;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(26, 26, 46, 0.9) 100%);
+    padding: 15px;
+    border-radius: 8px;
     font-size: 14px;
+    border: 1px solid rgba(156, 39, 176, 0.3);
+    backdrop-filter: blur(5px);
 }
 
-/* Player CSS */
-.player .debug-info {
-    color: #00ff00;
+.character-indicators {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.character-indicator {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background: rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(3px);
+}
+
+.character-indicator.active {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.8) 0%, rgba(46, 125, 50, 0.8) 100%);
+    border-color: #4CAF50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+}
+
+.character-indicator.active.shadow {
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.8) 0%, rgba(74, 20, 140, 0.8) 100%);
+    border-color: #9C27B0;
+    box-shadow: 0 0 15px rgba(156, 39, 176, 0.4);
+}
+
+.character-indicator .icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+}
+
+.character-indicator .icon.main {
+    background: #4CAF50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+
+.character-indicator .icon.shadow {
+    background: #9C27B0;
+    box-shadow: 0 0 8px rgba(156, 39, 176, 0.6);
+}
+
+.character-indicator .label {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.controls-info {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(26, 26, 46, 0.9) 100%);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(156, 39, 176, 0.3);
+    backdrop-filter: blur(5px);
+}
+
+.controls-info h3 {
+    color: #9C27B0;
+    margin-bottom: 8px;
     font-size: 12px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.controls-info .control-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.controls-info .key {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
     border-radius: 3px;
+    margin-right: 8px;
+    font-weight: bold;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.player .health-bar {
-    width: 50px;
+
+/* Particle effects */
+.switch-effect {
+    position: absolute;
+    pointer-events: none;
+    z-index: 50;
+}
+
+/* Loading screen enhancement */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-screen h1 {
+    color: #9C27B0;
+    font-size: 48px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(156, 39, 176, 0.5);
+}
+
+.loading-screen .subtitle {
+    color: #ffffff;
+    font-size: 18px;
+    margin-bottom: 40px;
+    opacity: 0.8;
+}
+
+.loading-bar {
+    width: 300px;
     height: 6px;
-    background: #ff0000;
-    border: 1px solid #fff;
-    margin-top: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
 }
 
-.player .health-fill {
+.loading-fill {
     height: 100%;
-    background: #00ff00;
+    background: linear-gradient(90deg, #9C27B0 0%, #BA68C8 100%);
+    width: 0%;
     transition: width 0.3s ease;
+    border-radius: 3px;
 }
