@@ -1,0 +1,69 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #1a1a1a;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-canvas {
+    border: 2px solid #333;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.ui-debug {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Player CSS */
+.player .debug-info {
+    color: #00ff00;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.player .health-bar {
+    width: 50px;
+    height: 6px;
+    background: #ff0000;
+    border: 1px solid #fff;
+    margin-top: 5px;
+}
+
+.player .health-fill {
+    height: 100%;
+    background: #00ff00;
+    transition: width 0.3s ease;
+}

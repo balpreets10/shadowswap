@@ -1,0 +1,22 @@
+/* Player CSS */
+.player .debug-info {
+    color: #00ff00;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.player .health-bar {
+    width: 50px;
+    height: 6px;
+    background: #ff0000;
+    border: 1px solid #fff;
+    margin-top: 5px;
+}
+
+.player .health-fill {
+    height: 100%;
+    background: #00ff00;
+    transition: width 0.3s ease;
+}
