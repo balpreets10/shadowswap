@@ -19,13 +19,8 @@ jobs:
         chmod +x butler
         sudo mv butler /usr/local/bin
     
-    - name: Login to itch.io
-      env:
-        ITCH_IO_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
-      run: butler login
-    
     - name: Push to itch.io
       env:
-        ITCH_IO_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
+        BUTLER_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
       run: |
         butler push builds/build.zip ${{ secrets.ITCH_USER }}/${{ secrets.ITCH_GAME }}:html
