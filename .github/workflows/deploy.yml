@@ -3,6 +3,7 @@ name: Deploy to itch.io
 on:
   push:
     branches: [ release ]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,6 +12,19 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    
+    - name: Create build-files directory and copy game files
+      run: |
+        mkdir -p build-files
+        cp index.html build-files/
+        cp -r styles build-files/
+        cp -r js build-files/
+    
+    - name: Create builds directory and zip build-files contents
+      run: |
+        mkdir -p builds
+        cd build-files
+        zip -r ../builds/build.zip .
     
     - name: Setup Butler (itch.io CLI)
       run: |
@@ -24,3 +38,84 @@ jobs:
         BUTLER_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
       run: |
         butler push builds/build.zip ${{ secrets.ITCH_USER }}/${{ secrets.ITCH_GAME }}:html
+    
+    - name: Check for devlog file
+      id: check_devlog
+      run: |
+        if [ -f "devlogs/devlog.md" ]; then
+          echo "devlog_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "devlog_exists=false" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Extract devlog title and body
+      if: steps.check_devlog.outputs.devlog_exists == 'true'
+      id: extract_devlog
+      run: |
+        # Read the devlog file
+        DEVLOG_CONTENT=$(cat devlogs/devlog.md)
+        
+        # Extract title (first line starting with #)
+        TITLE=$(echo "$DEVLOG_CONTENT" | grep -m 1 '^#' | sed 's/^# *//' | tr -d '\n')
+        
+        # If no title found, use default with timestamp
+        if [ -z "$TITLE" ]; then
+          TITLE="Build Update - $(date '+%Y-%m-%d %H:%M')"
+        fi
+        
+        # Extract body (everything after the first title line)
+        BODY=$(echo "$DEVLOG_CONTENT" | sed '0,/^#.*$/d' | sed '/^$/d' | head -c 8000)
+        
+        # If body is empty, use the entire content
+        if [ -z "$BODY" ]; then
+          BODY="$DEVLOG_CONTENT"
+        fi
+        
+        # Save to environment (escape newlines)
+        echo "DEVLOG_TITLE<<EOF" >> $GITHUB_ENV
+        echo "$TITLE" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+        
+        echo "DEVLOG_BODY<<EOF" >> $GITHUB_ENV
+        echo "$BODY" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+        
+        echo "Devlog title: $TITLE"
+        echo "Devlog body length: ${#BODY} characters"
+    
+    - name: Create devlog post
+      if: steps.check_devlog.outputs.devlog_exists == 'true'
+      env:
+        BUTLER_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
+      run: |
+        # Create temporary files for title and body
+        echo "$DEVLOG_TITLE" > /tmp/devlog_title.txt
+        echo "$DEVLOG_BODY" > /tmp/devlog_body.txt
+        
+        # Create devlog using butler
+        butler devlog create "${{ secrets.ITCH_USER }}/${{ secrets.ITCH_GAME }}" \
+          --title "$(cat /tmp/devlog_title.txt)" \
+          --body "$(cat /tmp/devlog_body.txt)"
+        
+        echo "✅ Devlog created successfully!"
+    
+    - name: Archive devlog after posting
+      if: steps.check_devlog.outputs.devlog_exists == 'true'
+      run: |
+        # Create archive directory if it doesn't exist
+        mkdir -p devlogs/archive
+        
+        # Move devlog to archive with timestamp
+        TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
+        mv devlogs/devlog.md "devlogs/archive/devlog_${TIMESTAMP}.md"
+        
+        echo "📁 Devlog archived as devlog_${TIMESTAMP}.md"
+    
+    - name: Commit archived devlog
+      if: steps.check_devlog.outputs.devlog_exists == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add devlogs/archive/
+        git diff --staged --quiet || git commit -m "Archive devlog after deployment [skip ci]"
+        git push || echo "No changes to push"
