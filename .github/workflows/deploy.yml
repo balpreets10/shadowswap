@@ -3,6 +3,7 @@ name: Deploy to itch.io
 on:
   push:
     branches: [ release ]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -11,6 +12,24 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    
+    - name: Create build directory
+      run: mkdir -p builds
+    
+    - name: Copy game files to build
+      run: |
+        cp *.html builds/ 2>/dev/null || echo "No HTML files found"
+        cp *.css builds/
+        cp *.js builds/
+        cp -r assets builds/ 2>/dev/null || echo "No assets directory found"
+        cp -r images builds/ 2>/dev/null || echo "No images directory found"
+        cp -r sounds builds/ 2>/dev/null || echo "No sounds directory found"
+    
+    - name: Create build.zip
+      run: |
+        cd builds
+        zip -r build.zip .
+        mv build.zip ../builds/
     
     - name: Setup Butler (itch.io CLI)
       run: |
@@ -23,4 +42,4 @@ jobs:
       env:
         BUTLER_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
       run: |
-        butler push builds/build.zip ${{ secrets.ITCH_USER }}/${{ secrets.ITCH_GAME }}:html
+        butler push builds ${{ secrets.ITCH_USER }}/${{ secrets.ITCH_GAME }}:html
