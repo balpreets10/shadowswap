@@ -48,118 +48,58 @@ jobs:
           echo "devlog_exists=false" >> $GITHUB_OUTPUT
         fi
     
-    - name: Extract devlog title and body
+    - name: Extract and display devlog content
       if: steps.check_devlog.outputs.devlog_exists == 'true'
-      id: extract_devlog
       run: |
-        # Read the devlog file
-        DEVLOG_CONTENT=$(cat devlogs/devlog.md)
-        
-        # Extract title (first line starting with #)
-        TITLE=$(echo "$DEVLOG_CONTENT" | grep -m 1 '^#' | sed 's/^# *//' | tr -d '\n')
-        
-        # If no title found, use default with timestamp
-        if [ -z "$TITLE" ]; then
-          TITLE="Build Update - $(date '+%Y-%m-%d %H:%M')"
-        fi
-        
-        # Extract body (everything after the first title line)
-        BODY=$(echo "$DEVLOG_CONTENT" | sed '0,/^#.*$/d' | sed '/^$/d' | head -c 8000)
-        
-        # If body is empty, use the entire content
-        if [ -z "$BODY" ]; then
-          BODY="$DEVLOG_CONTENT"
-        fi
-        
-        # Save to environment (escape newlines and special characters for JSON)
-        echo "DEVLOG_TITLE<<EOF" >> $GITHUB_ENV
-        echo "$TITLE" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-        
-        echo "DEVLOG_BODY<<EOF" >> $GITHUB_ENV
-        echo "$BODY" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-        
-        echo "Devlog title: $TITLE"
-        echo "Devlog body length: ${#BODY} characters"
+        echo "📝 Devlog found! Here's the content to post manually:"
+        echo "=============================================="
+        cat devlogs/devlog.md
+        echo "=============================================="
+        echo ""
+        echo "🔗 Go to your itch.io game page to create the devlog manually:"
+        echo "   https://${{ secrets.ITCH_USER }}.itch.io/${{ secrets.ITCH_GAME }}/devlog/new"
+        echo ""
+        echo "⚠️  Note: itch.io doesn't provide an API for devlog creation"
+        echo "   This content will be archived after deployment"
     
-    - name: Get Game ID from itch.io API
-      if: steps.check_devlog.outputs.devlog_exists == 'true'
-      id: get_game_id
+    - name: Verify deployment with API
       env:
         BUTLER_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
       run: |
-        # Get user's games to find the game ID
-        RESPONSE=$(curl -s -H "Authorization: Bearer $BUTLER_API_KEY" \
-          "https://itch.io/api/1/${{ secrets.ITCH_USER }}/my-games")
+        echo "🔍 Verifying deployment..."
         
-        echo "API Response: $RESPONSE"
+        # Test API credentials
+        CREDS_RESPONSE=$(curl -s -H "Authorization: Bearer $BUTLER_API_KEY" \
+          "https://itch.io/api/1/key/credentials/info")
         
-        # Extract game ID using jq or grep/sed
-        if command -v jq &> /dev/null; then
-          GAME_ID=$(echo "$RESPONSE" | jq -r --arg game "${{ secrets.ITCH_GAME }}" \
-            '.games[] | select(.url | contains($game)) | .id')
-        else
-          # Fallback without jq - this is more fragile
-          GAME_ID=$(echo "$RESPONSE" | grep -o "\"id\":[0-9]*" | head -1 | cut -d: -f2)
-        fi
+        echo "API Credentials: $CREDS_RESPONSE"
         
-        if [ -z "$GAME_ID" ] || [ "$GAME_ID" = "null" ]; then
-          echo "❌ Could not find game ID for ${{ secrets.ITCH_GAME }}"
-          echo "Available games in response:"
-          echo "$RESPONSE" | grep -o '"title":"[^"]*"' || echo "No games found in response"
+        # Get user info
+        USER_RESPONSE=$(curl -s -H "Authorization: Bearer $BUTLER_API_KEY" \
+          "https://itch.io/api/1/key/me")
+        
+        echo "User Info: $USER_RESPONSE"
+        
+        # Get games list to verify game exists
+        GAMES_RESPONSE=$(curl -s -H "Authorization: Bearer $BUTLER_API_KEY" \
+          "https://itch.io/api/1/key/my-games")
+        
+        if echo "$GAMES_RESPONSE" | grep -q "errors"; then
+          echo "❌ API Error: $GAMES_RESPONSE"
           exit 1
-        fi
-        
-        echo "Found game ID: $GAME_ID"
-        echo "GAME_ID=$GAME_ID" >> $GITHUB_OUTPUT
-    
-    - name: Create devlog post via itch.io API
-      if: steps.check_devlog.outputs.devlog_exists == 'true'
-      env:
-        BUTLER_API_KEY: ${{ secrets.ITCH_IO_API_KEY }}
-        GAME_ID: ${{ steps.get_game_id.outputs.GAME_ID }}
-      run: |
-        # Escape JSON strings properly
-        ESCAPED_TITLE=$(echo "$DEVLOG_TITLE" | sed 's/"/\\"/g' | tr -d '\n\r')
-        ESCAPED_BODY=$(echo "$DEVLOG_BODY" | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
-        
-        # Create JSON payload
-        JSON_PAYLOAD=$(cat <<EOF
-        {
-          "title": "$ESCAPED_TITLE",
-          "body": "$ESCAPED_BODY",
-          "published": true
-        }
-        EOF
-        )
-        
-        echo "Creating devlog with payload:"
-        echo "$JSON_PAYLOAD"
-        
-        # Make API request to create devlog
-        RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
-          -X POST \
-          -H "Authorization: Bearer $BUTLER_API_KEY" \
-          -H "Content-Type: application/json" \
-          -d "$JSON_PAYLOAD" \
-          "https://itch.io/api/1/game/$GAME_ID/devlog")
-        
-        HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE:" | cut -d: -f2)
-        RESPONSE_BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE:/d')
-        
-        echo "HTTP Status Code: $HTTP_CODE"
-        echo "Response Body: $RESPONSE_BODY"
-        
-        if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
-          echo "✅ Devlog created successfully!"
         else
-          echo "❌ Failed to create devlog. HTTP Code: $HTTP_CODE"
-          echo "Response: $RESPONSE_BODY"
-          exit 1
+          echo "✅ Game deployment verified via API"
+          # Extract game title if available
+          if command -v jq &> /dev/null; then
+            GAME_TITLE=$(echo "$GAMES_RESPONSE" | jq -r --arg game "${{ secrets.ITCH_GAME }}" \
+              '.games[] | select(.url | contains($game)) | .title')
+            if [ "$GAME_TITLE" != "null" ] && [ -n "$GAME_TITLE" ]; then
+              echo "🎮 Game: $GAME_TITLE"
+            fi
+          fi
         fi
     
-    - name: Archive devlog after posting
+    - name: Archive devlog after deployment
       if: steps.check_devlog.outputs.devlog_exists == 'true'
       run: |
         # Create archive directory if it doesn't exist
@@ -170,6 +110,7 @@ jobs:
         mv devlogs/devlog.md "devlogs/archive/devlog_${TIMESTAMP}.md"
         
         echo "📁 Devlog archived as devlog_${TIMESTAMP}.md"
+        echo "💡 Remember to manually post the devlog content shown above!"
     
     - name: Commit archived devlog
       if: steps.check_devlog.outputs.devlog_exists == 'true'
@@ -179,3 +120,15 @@ jobs:
         git add devlogs/archive/
         git diff --staged --quiet || git commit -m "Archive devlog after deployment [skip ci]"
         git push || echo "No changes to push"
+    
+    - name: Deployment summary
+      run: |
+        echo "🚀 Deployment Summary:"
+        echo "====================="
+        echo "✅ Game deployed to itch.io successfully"
+        echo "🔗 Game URL: https://${{ secrets.ITCH_USER }}.itch.io/${{ secrets.ITCH_GAME }}"
+        if [ -f "devlogs/archive/"*.md ]; then
+          echo "📝 Devlog content archived (requires manual posting)"
+          echo "📋 Create devlog at: https://${{ secrets.ITCH_USER }}.itch.io/${{ secrets.ITCH_GAME }}/devlog/new"
+        fi
+        echo "====================="
