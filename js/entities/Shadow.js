@@ -6,6 +6,7 @@ class Shadow {
         this.setupPhysics();
         this.setupAnimations();
         this.setupState();
+        this.setupFollowing();
     }
 
     initializeVisualEffects() {
@@ -61,6 +62,15 @@ class Shadow {
         this.glowEffect = null; // Initialize as null
     }
 
+    setupFollowing() {
+        this.isFollowing = false;
+        this.followTarget = null;
+        this.followOffset = { x: 20, y: -5 }; // Slight offset from player
+        this.followSpeed = 0.05; // Lerp speed (0-1, higher = faster)
+        this.followDistance = 150; // Max distance before instant teleport
+        this.physicsEnabled = true;
+    }
+
     setupVisualEffects() {
         // Add glow effect when active
         this.glowEffect = this.scene.add.graphics();
@@ -80,8 +90,46 @@ class Shadow {
         }
     }
 
+    enablePhysics() {
+        this.physicsEnabled = true;
+        this.sprite.body.setEnable(true);
+        this.sprite.setCollideWorldBounds(true);
+    }
+
+    disablePhysics() {
+        this.physicsEnabled = false;
+        this.sprite.body.setEnable(false);
+        this.sprite.setCollideWorldBounds(false);
+    }
+
+    startFollowing(target) {
+        this.isFollowing = true;
+        this.followTarget = target;
+        this.disablePhysics();
+
+        // Make shadow more ethereal when following
+        this.sprite.setAlpha(0.4);
+        this.sprite.setTint(0xBBBBBB);
+
+        // Stop trail effect when following
+        if (this.trailEmitter) {
+            this.trailEmitter.stop();
+        }
+    }
+
+    stopFollowing() {
+        this.isFollowing = false;
+        this.followTarget = null;
+        this.enablePhysics();
+
+        // Restore normal appearance
+        this.sprite.setAlpha(0.7);
+        this.sprite.setTint(0xFFFFFF);
+    }
+
     activate() {
         this.isActive = true;
+        this.stopFollowing(); // Stop following when active
         this.sprite.setAlpha(1);
         this.sprite.setTint(0xffffff);
 
@@ -110,14 +158,58 @@ class Shadow {
     }
 
     update(inputManager) {
-        // Only handle input when active, otherwise stay idle
-        if (this.isActive) {
+        if (this.isFollowing) {
+            this.updateFollowing();
+        } else if (this.isActive) {
             this.handleInput(inputManager);
         }
 
         this.updateAnimations();
-        this.updatePhysics();
+
+        if (this.physicsEnabled) {
+            this.updatePhysics();
+        }
+
         this.updateGlow();
+    }
+
+    updateFollowing() {
+        if (!this.followTarget) return;
+
+        const targetPos = this.followTarget.getPosition();
+        const currentPos = this.getPosition();
+
+        // Calculate target position with offset
+        const targetX = targetPos.x + this.followOffset.x;
+        const targetY = targetPos.y + this.followOffset.y;
+
+        // Check if shadow is too far away (teleport to prevent getting stuck)
+        const distance = Phaser.Math.Distance.Between(currentPos.x, currentPos.y, targetX, targetY);
+
+        if (distance > this.followDistance) {
+            // Instant teleport if too far
+            this.sprite.setPosition(targetX, targetY);
+        } else if (distance > 5) { // Only move if not already close enough
+            // Smooth lerp movement
+            const newX = Phaser.Math.Linear(currentPos.x, targetX, this.followSpeed);
+            const newY = Phaser.Math.Linear(currentPos.y, targetY, this.followSpeed);
+            this.sprite.setPosition(newX, newY);
+
+            // Update facing direction based on movement
+            if (targetX < currentPos.x) {
+                this.facingDirection = -1;
+                this.movementState = 'following';
+            } else if (targetX > currentPos.x) {
+                this.facingDirection = 1;
+                this.movementState = 'following';
+            } else {
+                this.movementState = 'idle';
+            }
+
+            this.sprite.setFlipX(this.facingDirection === -1);
+        } else {
+            this.movementState = 'idle';
+        }
     }
 
     handleInput(inputManager) {
@@ -150,7 +242,14 @@ class Shadow {
     }
 
     updateAnimations() {
-        if (!this.isGrounded) {
+        if (this.isFollowing) {
+            // Use appropriate animation for following state
+            if (this.movementState === 'following') {
+                this.sprite.play('shadow-running', true);
+            } else {
+                this.sprite.play('shadow-idle', true);
+            }
+        } else if (!this.isGrounded && this.physicsEnabled) {
             this.sprite.play('shadow-jumping', true);
         } else if (this.movementState === 'running') {
             this.sprite.play('shadow-running', true);
@@ -160,6 +259,8 @@ class Shadow {
     }
 
     updatePhysics() {
+        if (!this.physicsEnabled) return;
+
         const wasGrounded = this.isGrounded;
         this.isGrounded = this.sprite.body.touching.down;
 
@@ -175,6 +276,11 @@ class Shadow {
             this.glowEffect.strokeCircle(this.sprite.x, this.sprite.y, 25);
             this.glowEffect.lineStyle(2, 0x9C27B0, 0.6);
             this.glowEffect.strokeCircle(this.sprite.x, this.sprite.y, 20);
+        } else if (this.isFollowing && this.glowEffect) {
+            // Subtle glow when following
+            this.glowEffect.clear();
+            this.glowEffect.lineStyle(2, 0x9C27B0, 0.1);
+            this.glowEffect.strokeCircle(this.sprite.x, this.sprite.y, 15);
         }
     }
 
