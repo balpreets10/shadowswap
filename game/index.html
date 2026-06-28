@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Swap</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/player.css">
+    <link rel="stylesheet" href="styles/shadow.css">
+    <link rel="stylesheet" href="styles/light-system.css">
+</head>
+
+<body>
+    <div id="game-container">
+        <div id="game-canvas"></div>
+        <div id="ui-overlay">
+            <div class="character-indicators">
+                <div class="character-indicator active" id="main-indicator">
+                    <div class="icon main"></div>
+                    <span class="label">Main</span>
+                </div>
+                <div class="character-indicator" id="shadow-indicator">
+                    <div class="icon shadow"></div>
+                    <span class="label">Shadow</span>
+                </div>
+            </div>
+
+            <div class="controls-info">
+                <h3>Controls</h3>
+                <div class="control-item">
+                    <span class="key">WASD</span>
+                    <span>Move Character</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">SPACE</span>
+                    <span>Jump</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">F</span>
+                    <span>Switch Characters</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">S/↓</span>
+                    <span>Drop Through Platform</span>
+                </div>
+            </div>
+
+            <div class="ui-debug">
+                <h3>Light System Debug</h3>
+                <div id="light-debug-info">
+                    <div>Lights: <span id="light-count">0</span></div>
+                    <div>Shadow Zones: <span id="shadow-zones">0</span></div>
+                    <div>Quality: <span id="quality-level">High</span></div>
+                    <div>FPS: <span id="fps-counter">60</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <h1>Shadow Swap</h1>
+            <p class="subtitle">Loading game configuration...</p>
+            <div class="loading-bar">
+                <div class="loading-fill" id="loading-fill"></div>
+            </div>
+            <p id="loading-status">Initializing...</p>
+        </div>
+    </div>
+
+    <!-- Configuration Manager (Must load first) -->
+    <script src="js/managers/ConfigManager.js"></script>
+
+    <!-- Global config constants (referenced directly, not via window.GameConfig) -->
+    <script src="js/config/CollisionConfig.js"></script>
+    <script src="js/config/LightSourceConfig.js"></script>
+
+    <!-- Light/Shadow System -->
+    <script src="js/lighting/LightSource.js"></script>
+    <script src="js/lighting/ShadowCaster.js"></script>
+    <script src="js/lighting/LightSourceManager.js"></script>
+    <script src="js/lighting/ShadowZoneDetector.js"></script>
+    <script src="js/performance/PerformanceProfiler.js"></script>
+
+    <!-- Core Systems -->
+    <script src="js/managers/InputManager.js"></script>
+    <script src="js/managers/AssetManager.js"></script>
+    <script src="js/managers/GameStateManager.js"></script>
+    <script src="js/managers/CharacterManager.js"></script>
+
+    <!-- Game Objects -->
+    <script src="js/entities/Player.js"></script>
+    <script src="js/entities/Shadow.js"></script>
+    <script src="js/entities/Platform.js"></script>
+
+    <!-- Scenes -->
+    <script src="js/scenes/GameScene.js"></script>
+
+    <!-- Main Game -->
+    <script src="js/Game.js"></script>
+
+    <script>
+        // Game initialization with proper configuration loading
+        class GameInitializer {
+            constructor() {
+                this.loadingScreen = document.getElementById('loading-screen');
+                this.loadingFill = document.getElementById('loading-fill');
+                this.loadingStatus = document.getElementById('loading-status');
+                this.configManager = window.GameConfig;
+                this.game = null;
+            }
+
+            async initialize() {
+                try {
+                    this.updateLoadingStatus('Loading configurations...', 10);
+
+                    // Load all configuration files
+                    await this.configManager.loadAllConfigs();
+                    this.updateLoadingStatus('Configurations loaded successfully', 50);
+
+                    // Validate critical configurations
+                    this.validateConfigurations();
+                    this.updateLoadingStatus('Configurations validated', 70);
+
+                    // Initialize game with configurations
+                    this.initializeGame();
+                    this.updateLoadingStatus('Game initialized', 90);
+
+                    // Setup UI and finalize
+                    this.initializeUI();
+                    this.updateLoadingStatus('Ready to play!', 100);
+
+                    // Hide loading screen
+                    setTimeout(() => {
+                        this.loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            this.loadingScreen.style.display = 'none';
+                        }, 500);
+                    }, 500);
+
+                } catch (error) {
+                    console.error('Failed to initialize game:', error);
+                    this.updateLoadingStatus('Error loading game. Using fallback configurations.', 100);
+
+                    // Try to continue with fallback configurations
+                    this.initializeGame();
+                    this.initializeUI();
+
+                    setTimeout(() => {
+                        this.loadingScreen.style.display = 'none';
+                    }, 2000);
+                }
+            }
+
+            updateLoadingStatus(message, percentage) {
+                this.loadingStatus.textContent = message;
+                this.loadingFill.style.width = percentage + '%';
+                console.log(`Loading: ${percentage}% - ${message}`);
+            }
+
+            validateConfigurations() {
+                const requiredConfigs = [
+                    'PlayerConfig', 'ShadowConfig', 'PlatformConfig',
+                    'CollisionConfig', 'GameConfig', 'LightSourceConfig'
+                ];
+
+                for (const configName of requiredConfigs) {
+                    const config = this.configManager.getConfig(configName);
+                    if (!config || Object.keys(config).length === 0) {
+                        console.warn(`${configName} is empty or invalid, using fallback`);
+                    } else {
+                        console.log(`${configName} loaded successfully`);
+                    }
+                }
+            }
+
+            initializeGame() {
+                // Get game configuration
+                const gameConfig = this.configManager.getConfig('GameConfig');
+
+                // Create Phaser game configuration
+                const phaserConfig = {
+                    type: Phaser.AUTO,
+                    width: gameConfig.SCENE.width / 1.6, // Scale down for display
+                    height: gameConfig.SCENE.height / 1.6,
+                    parent: 'game-canvas',
+                    backgroundColor: gameConfig.SCENE.backgroundColor,
+                    physics: {
+                        default: 'arcade',
+                        arcade: {
+                            gravity: { y: gameConfig.SCENE.gravity },
+                            debug: false // Set to true for physics debugging
+                        }
+                    },
+                    scene: [GameScene],
+                    scale: {
+                        mode: Phaser.Scale.FIT,
+                        autoCenter: Phaser.Scale.CENTER_BOTH
+                    }
+                };
+
+                // Initialize the game
+                this.game = new Phaser.Game(phaserConfig);
+                window.shadowSwapGame = this.game;
+            }
+
+            initializeUI() {
+                const mainIndicator = document.getElementById('main-indicator');
+                const shadowIndicator = document.getElementById('shadow-indicator');
+
+                // Listen for character switch events
+                document.addEventListener('characterSwitch', (event) => {
+                    if (event.detail.activeCharacter === 'main') {
+                        mainIndicator.classList.add('active');
+                        shadowIndicator.classList.remove('active', 'shadow');
+                    } else {
+                        shadowIndicator.classList.add('active', 'shadow');
+                        mainIndicator.classList.remove('active');
+                    }
+                });
+
+                // Update debug UI periodically
+                setInterval(() => this.updateDebugUI(), 500);
+
+                // Setup debug keyboard shortcuts
+                this.setupDebugShortcuts();
+            }
+
+            updateDebugUI() {
+                if (this.game && this.game.scene && this.game.scene.keys.GameScene) {
+                    const scene = this.game.scene.keys.GameScene;
+
+                    if (scene.lightSourceManager) {
+                        const debugInfo = scene.lightSourceManager.getDebugInfo();
+                        const performanceInfo = scene.lightSourceManager.getPerformanceInfo();
+
+                        // Update debug display
+                        const lightCountEl = document.getElementById('light-count');
+                        const shadowZonesEl = document.getElementById('shadow-zones');
+                        const qualityLevelEl = document.getElementById('quality-level');
+                        const fpsCounterEl = document.getElementById('fps-counter');
+
+                        if (lightCountEl) lightCountEl.textContent = `${debugInfo.activeLights}/${debugInfo.totalLights}`;
+                        if (shadowZonesEl) shadowZonesEl.textContent = debugInfo.shadowZones;
+                        if (qualityLevelEl) qualityLevelEl.textContent = performanceInfo.currentQuality;
+                        if (fpsCounterEl) fpsCounterEl.textContent = performanceInfo.lastFPS || 60;
+                    }
+                }
+            }
+
+            setupDebugShortcuts() {
+                document.addEventListener('keydown', (event) => {
+                    if (event.ctrlKey) {
+                        switch (event.key) {
+                            case '1':
+                                event.preventDefault();
+                                window.shadowSwapDebug.toggleLightDebug();
+                                break;
+                            case '2':
+                                event.preventDefault();
+                                window.shadowSwapDebug.toggleShadowDebug();
+                                break;
+                            case '3':
+                                event.preventDefault();
+                                window.shadowSwapDebug.toggleRayDebug();
+                                break;
+                        }
+                    }
+                });
+            }
+        }
+
+        // Global debug functions
+        window.shadowSwapDebug = {
+            toggleLightDebug: () => {
+                const lightConfig = window.GameConfig.getConfig('LightSourceConfig');
+                if (lightConfig.DEBUG) {
+                    lightConfig.DEBUG.showLightRadius = !lightConfig.DEBUG.showLightRadius;
+                    console.log('Light radius debug:', lightConfig.DEBUG.showLightRadius);
+                }
+            },
+            toggleShadowDebug: () => {
+                const lightConfig = window.GameConfig.getConfig('LightSourceConfig');
+                if (lightConfig.DEBUG) {
+                    lightConfig.DEBUG.showShadowZones = !lightConfig.DEBUG.showShadowZones;
+                    console.log('Shadow zones debug:', lightConfig.DEBUG.showShadowZones);
+                }
+            },
+            toggleRayDebug: () => {
+                const lightConfig = window.GameConfig.getConfig('LightSourceConfig');
+                if (lightConfig.DEBUG) {
+                    lightConfig.DEBUG.showShadowRays = !lightConfig.DEBUG.showShadowRays;
+                    console.log('Shadow rays debug:', lightConfig.DEBUG.showShadowRays);
+                }
+            },
+            addLight: (x, y, type = 'torch') => {
+                const game = window.shadowSwapGame;
+                if (game && game.scene && game.scene.keys.GameScene) {
+                    const scene = game.scene.keys.GameScene;
+                    if (scene.lightSourceManager) {
+                        const id = `debug_light_${Date.now()}`;
+                        scene.lightSourceManager.addLightSource(id, x, y, type);
+                        console.log(`Added ${type} light at (${x}, ${y}) with ID: ${id}`);
+                        return id;
+                    }
+                }
+            },
+            removeLight: (id) => {
+                const game = window.shadowSwapGame;
+                if (game && game.scene && game.scene.keys.GameScene) {
+                    const scene = game.scene.keys.GameScene;
+                    if (scene.lightSourceManager) {
+                        const removed = scene.lightSourceManager.removeLightSource(id);
+                        console.log(`Light ${id} removal:`, removed);
+                        return removed;
+                    }
+                }
+            },
+            getPerformanceInfo: () => {
+                const game = window.shadowSwapGame;
+                if (game && game.scene && game.scene.keys.GameScene) {
+                    const scene = game.scene.keys.GameScene;
+                    if (scene.lightSourceManager) {
+                        return scene.lightSourceManager.getPerformanceInfo();
+                    }
+                }
+                return null;
+            },
+            getConfig: (configName) => {
+                return window.GameConfig.getConfig(configName);
+            },
+            reloadConfig: async (configName) => {
+                await window.GameConfig.loadConfig(`js/config/${configName}.json`);
+                console.log(`Reloaded ${configName}`);
+            }
+        };
+
+        // Initialize the game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameInitializer = new GameInitializer();
+            gameInitializer.initialize();
+        });
+
+        console.log('Shadow Swap with Configuration System loaded!');
+        console.log('Debug commands available via window.shadowSwapDebug');
+        console.log('Keyboard shortcuts: Ctrl+1 (lights), Ctrl+2 (shadows), Ctrl+3 (rays)');
+    </script>
+</body>
+
+</html>

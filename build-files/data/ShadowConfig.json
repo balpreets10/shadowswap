@@ -1,0 +1,79 @@
+{
+    "PHYSICS": {
+        "maxSpeed": 280,
+        "acceleration": 1800,
+        "jumpPower": 520,
+        "friction": 0.8,
+        "maxVelocityY": 900
+    },
+    "ANIMATIONS": {
+        "idleFrame": "shadow-idle",
+        "jumpFrame": "shadow-jump",
+        "runFrames": ["shadow-run-0", "shadow-run-1", "shadow-run-2", "shadow-run-3"],
+        "runFrameRate": 10
+    },
+    "VISUAL": {
+        "baseAlpha": 0.7,
+        "activeAlpha": 0.9,
+        "inactiveAlpha": 0.35,
+        "followingAlpha": 0.4,
+        "activeTint": "0xffffff",
+        "inactiveTint": "0x888888",
+        "followingTint": "0x9C27B0",
+        "enhancedTint": "0xCE93D8",
+        "shadowZoneTint": "0x9C27B0"
+    },
+    "FOLLOWING": {
+        "followOffset": { "x": 20, "y": 0 },
+        "followSpeed": 0.2,
+        "followDistance": 40,
+        "teleportDistance": 300
+    },
+    "SHADOW_ZONES": {
+        "checkInterval": 100,
+        "violationGracePeriod": 200,
+        "restrictedSpeedMultiplier": 0.3,
+        "restrictedJumpMultiplier": 0.5
+    },
+    "EFFECTS": {
+        "trailParticles": {
+            "texture": "switch-particle",
+            "scale": { "start": 0.3, "end": 0 },
+            "alpha": { "start": 0.5, "end": 0 },
+            "speed": { "min": 10, "max": 30 },
+            "lifespan": 600,
+            "frequency": 60
+        },
+        "shadowZoneTrail": {
+            "scale": { "start": 0.4, "end": 0 },
+            "alpha": { "start": 0.7, "end": 0 },
+            "tint": "0xCE93D8"
+        },
+        "glow": {
+            "normalColor": "0x9C27B0",
+            "normalAlpha": 0.3,
+            "normalRadius": 22,
+            "shadowZoneColor": "0xCE93D8",
+            "shadowZoneAlpha": 0.4,
+            "shadowZoneRadius": 26
+        },
+        "landingEffect": {
+            "texture": "dust-particle",
+            "offsetY": 20,
+            "scale": { "start": 0.3, "end": 0 },
+            "alpha": { "start": 0.8, "end": 0 },
+            "speed": { "min": 20, "max": 60 },
+            "lifespan": 300,
+            "quantity": 4
+        },
+        "enterEffect": {
+            "texture": "switch-particle",
+            "tint": "0x9C27B0",
+            "scale": { "start": 0.5, "end": 0 },
+            "alpha": { "start": 0.8, "end": 0 },
+            "speed": { "min": 40, "max": 90 },
+            "lifespan": 500,
+            "quantity": 8
+        }
+    }
+}

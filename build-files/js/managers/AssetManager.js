@@ -66,13 +66,46 @@ class AssetManager {
         scene.add.graphics()
             .fillStyle(0x8D6E63)
             .fillRect(0, 0, 64, 32)
+            .lineStyle(2, 0x5D4E75, 1)
+            .strokeRect(0, 0, 64, 32)
             .generateTexture('platform-ground', 64, 32);
 
         // Floating platform
         scene.add.graphics()
             .fillStyle(0x5D4E75)
             .fillRect(0, 0, 64, 16)
+            .lineStyle(1, 0x3F2A5C, 1)
+            .strokeRect(0, 0, 64, 16)
             .generateTexture('platform-float', 64, 16);
+
+        // One-way platform (semi-transparent with dashed border)
+        const oneWayGraphics = scene.add.graphics();
+        oneWayGraphics.fillStyle(0x4CAF50, 0.6);
+        oneWayGraphics.fillRect(0, 0, 64, 8);
+
+        // Dashed line effect for one-way visual
+        for (let i = 0; i < 64; i += 8) {
+            oneWayGraphics.lineStyle(2, 0x2E7D32, 0.8);
+            oneWayGraphics.lineBetween(i, 0, i + 4, 0);
+            oneWayGraphics.lineBetween(i, 8, i + 4, 8);
+        }
+        oneWayGraphics.generateTexture('platform-oneway', 64, 8);
+
+        // Shadow-only platform (dark purple with mystical effect)
+        const shadowGraphics = scene.add.graphics();
+        shadowGraphics.fillStyle(0x4A148C, 0.8);
+        shadowGraphics.fillRect(0, 0, 64, 16);
+        shadowGraphics.lineStyle(2, 0x9C27B0, 0.6);
+        shadowGraphics.strokeRect(0, 0, 64, 16);
+
+        // Add mystical dots pattern
+        for (let i = 8; i < 64; i += 16) {
+            for (let j = 4; j < 16; j += 8) {
+                shadowGraphics.fillStyle(0x9C27B0, 0.4);
+                shadowGraphics.fillCircle(i, j, 2);
+            }
+        }
+        shadowGraphics.generateTexture('platform-shadow', 64, 16);
     }
 
     createParticleAssets(scene) {

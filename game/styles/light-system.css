@@ -1,0 +1,429 @@
+/* Light System CSS */
+
+/* Light source effects */
+.light-source {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: lightFlicker 2s ease-in-out infinite;
+}
+
+.light-source.torch {
+    background: radial-gradient(circle, rgba(255, 170, 68, 0.8) 0%, rgba(255, 170, 68, 0.4) 50%, transparent 100%);
+    box-shadow: 0 0 20px rgba(255, 170, 68, 0.6);
+}
+
+.light-source.beacon {
+    background: radial-gradient(circle, rgba(170, 255, 255, 0.9) 0%, rgba(170, 255, 255, 0.3) 50%, transparent 100%);
+    box-shadow: 0 0 30px rgba(170, 255, 255, 0.8);
+    animation: beaconPulse 3s ease-in-out infinite;
+}
+
+.light-source.lamp {
+    background: radial-gradient(circle, rgba(255, 255, 170, 0.7) 0%, rgba(255, 255, 170, 0.3) 50%, transparent 100%);
+    box-shadow: 0 0 15px rgba(255, 255, 170, 0.5);
+}
+
+.light-source.candle {
+    background: radial-gradient(circle, rgba(255, 221, 136, 0.6) 0%, rgba(255, 221, 136, 0.2) 50%, transparent 100%);
+    box-shadow: 0 0 10px rgba(255, 221, 136, 0.4);
+    animation: candleFlicker 1.5s ease-in-out infinite;
+}
+
+/* Shadow zone effects */
+.shadow-zone {
+    position: absolute;
+    background: rgba(156, 39, 176, 0.3);
+    border: 2px solid rgba(156, 39, 176, 0.6);
+    border-radius: 4px;
+    pointer-events: none;
+    animation: shadowPulse 4s ease-in-out infinite;
+}
+
+.shadow-zone.active {
+    background: rgba(156, 39, 176, 0.5);
+    border-color: rgba(156, 39, 176, 0.8);
+    box-shadow: 0 0 20px rgba(156, 39, 176, 0.4);
+}
+
+.shadow-zone.restricted {
+    background: rgba(255, 68, 68, 0.3);
+    border-color: rgba(255, 68, 68, 0.6);
+    animation: warningPulse 1s ease-in-out infinite;
+}
+
+/* Light system debug UI */
+.light-debug-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(26, 26, 46, 0.95) 100%);
+    border: 2px solid rgba(255, 170, 68, 0.4);
+    border-radius: 8px;
+    padding: 15px;
+    min-width: 200px;
+    backdrop-filter: blur(5px);
+    font-family: 'Courier New', monospace;
+}
+
+.light-debug-panel h3 {
+    color: #FFAA44;
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255, 170, 68, 0.3);
+    padding-bottom: 5px;
+}
+
+.light-debug-panel .debug-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.light-debug-panel .debug-value {
+    color: #00ff88;
+    font-weight: bold;
+}
+
+.light-debug-panel .debug-value.warning {
+    color: #ffaa00;
+}
+
+.light-debug-panel .debug-value.critical {
+    color: #ff4444;
+    animation: criticalBlink 1s ease-in-out infinite;
+}
+
+/* Performance indicators */
+.performance-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-left: 8px;
+}
+
+.performance-indicator.good {
+    background: #00ff88;
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+}
+
+.performance-indicator.moderate {
+    background: #ffaa00;
+    box-shadow: 0 0 8px rgba(255, 170, 0, 0.6);
+}
+
+.performance-indicator.poor {
+    background: #ff4444;
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+    animation: criticalBlink 0.5s ease-in-out infinite;
+}
+
+/* Shadow character enhancements */
+.shadow-character-enhanced {
+    filter: drop-shadow(0 0 10px rgba(156, 39, 176, 0.8));
+    animation: shadowGlow 2s ease-in-out infinite;
+}
+
+.shadow-character-restricted {
+    filter: drop-shadow(0 0 8px rgba(255, 68, 68, 0.6));
+    animation: restrictedShake 0.5s ease-in-out infinite;
+}
+
+/* Light interaction indicators */
+.light-interaction-indicator {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: interactionPulse 1.5s ease-in-out infinite;
+}
+
+.light-interaction-indicator.switch {
+    border-color: rgba(0, 255, 136, 0.8);
+}
+
+.light-interaction-indicator.shadow-only {
+    border-color: rgba(156, 39, 176, 0.8);
+}
+
+/* Tutorial overlay for light system */
+.light-tutorial-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.light-tutorial-content {
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+    border: 2px solid rgba(156, 39, 176, 0.6);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 500px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.light-tutorial-content h2 {
+    color: #9C27B0;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.light-tutorial-content p {
+    color: #ffffff;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.light-tutorial-content .tutorial-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.light-tutorial-content button {
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.8) 0%, rgba(74, 20, 140, 0.8) 100%);
+    border: 2px solid rgba(156, 39, 176, 0.6);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.light-tutorial-content button:hover {
+    background: linear-gradient(135deg, rgba(156, 39, 176, 1) 0%, rgba(74, 20, 140, 1) 100%);
+    box-shadow: 0 0 15px rgba(156, 39, 176, 0.4);
+}
+
+/* Animations */
+@keyframes lightFlicker {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(0.95);
+    }
+}
+
+@keyframes beaconPulse {
+
+    0%,
+    100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+@keyframes candleFlicker {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1) rotate(0deg);
+    }
+
+    25% {
+        opacity: 0.8;
+        transform: scale(1.05) rotate(1deg);
+    }
+
+    75% {
+        opacity: 0.7;
+        transform: scale(0.95) rotate(-1deg);
+    }
+}
+
+@keyframes shadowPulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+@keyframes warningPulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        background: rgba(255, 68, 68, 0.3);
+    }
+
+    50% {
+        opacity: 0.7;
+        background: rgba(255, 68, 68, 0.5);
+    }
+}
+
+@keyframes criticalBlink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+@keyframes shadowGlow {
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 10px rgba(156, 39, 176, 0.8));
+    }
+
+    50% {
+        filter: drop-shadow(0 0 20px rgba(156, 39, 176, 1));
+    }
+}
+
+@keyframes restrictedShake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-2px);
+    }
+
+    75% {
+        transform: translateX(2px);
+    }
+}
+
+@keyframes interactionPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Quality level indicators */
+.quality-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.quality-indicator.high::before {
+    content: "●●●";
+    color: #00ff88;
+}
+
+.quality-indicator.medium::before {
+    content: "●●○";
+    color: #ffaa00;
+}
+
+.quality-indicator.low::before {
+    content: "●○○";
+    color: #ff4444;
+}
+
+/* Responsive adjustments for light system UI */
+@media (max-width: 1024px) {
+    .light-debug-panel {
+        right: 10px;
+        top: 10px;
+        padding: 10px;
+        min-width: 180px;
+    }
+
+    .light-debug-panel h3 {
+        font-size: 12px;
+    }
+
+    .light-debug-panel .debug-item {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 768px) {
+    .light-debug-panel {
+        position: fixed;
+        right: 5px;
+        top: 5px;
+        padding: 8px;
+        min-width: 160px;
+        font-size: 10px;
+    }
+
+    .light-tutorial-content {
+        margin: 20px;
+        padding: 20px;
+    }
+
+    .light-tutorial-content h2 {
+        font-size: 20px;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+
+    .light-source,
+    .shadow-zone,
+    .performance-indicator.poor,
+    .shadow-character-enhanced,
+    .shadow-character-restricted,
+    .light-interaction-indicator {
+        animation: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .light-debug-panel {
+        border-color: #ffffff;
+        background: rgba(0, 0, 0, 1);
+    }
+
+    .shadow-zone {
+        border-color: #ffffff;
+    }
+
+    .light-tutorial-content {
+        border-color: #ffffff;
+        background: rgba(0, 0, 0, 1);
+    }
+}

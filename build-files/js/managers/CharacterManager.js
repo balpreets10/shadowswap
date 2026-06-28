@@ -7,6 +7,11 @@ class CharacterManager {
         this.activeCharacter = 'main';
         this.switchCooldown = false;
         this.switchEffects = [];
+
+        // Get configuration
+        this.gameConfig = window.GameConfig.getConfig('GameConfig');
+        this.playerConfig = window.GameConfig.getConfig('PlayerConfig');
+        this.shadowConfig = window.GameConfig.getConfig('ShadowConfig');
     }
 
     initialize(mainCharacter, shadowCharacter) {
@@ -33,6 +38,8 @@ class CharacterManager {
     }
 
     switchCharacter() {
+        const switchConfig = this.gameConfig.CHARACTER_SWITCHING;
+
         this.switchCooldown = true;
 
         if (this.activeCharacter === 'main') {
@@ -42,10 +49,15 @@ class CharacterManager {
         }
 
         this.createSwitchEffect();
-        this.scene.cameras.main.shake(100, 0.02);
+
+        // Camera shake effect
+        this.scene.cameras.main.shake(
+            switchConfig.cameraShakeDuration,
+            switchConfig.cameraShakeIntensity
+        );
 
         // Cooldown to prevent rapid switching
-        this.scene.time.delayedCall(200, () => {
+        this.scene.time.delayedCall(switchConfig.cooldown, () => {
             this.switchCooldown = false;
         });
     }
@@ -61,10 +73,21 @@ class CharacterManager {
         this.shadowCharacter.startFollowing(this.mainCharacter);
 
         // Camera follows main character
-        this.scene.cameras.main.startFollow(this.mainCharacter.sprite, true, 0.1, 0.1);
+        const cameraConfig = this.gameConfig.CAMERA;
+        this.scene.cameras.main.startFollow(
+            this.mainCharacter.sprite,
+            true,
+            cameraConfig.followLerp,
+            cameraConfig.followLerp
+        );
 
         // Update game state
         this.scene.gameStateManager.updateState({ activeCharacter: 'main' });
+
+        // Dispatch custom event for UI updates
+        document.dispatchEvent(new CustomEvent('characterSwitch', {
+            detail: { activeCharacter: 'main' }
+        }));
     }
 
     activateShadow() {
@@ -77,26 +100,38 @@ class CharacterManager {
         this.mainCharacter.deactivate();
 
         // Camera follows shadow
-        this.scene.cameras.main.startFollow(this.shadowCharacter.sprite, true, 0.1, 0.1);
+        const cameraConfig = this.gameConfig.CAMERA;
+        this.scene.cameras.main.startFollow(
+            this.shadowCharacter.sprite,
+            true,
+            cameraConfig.followLerp,
+            cameraConfig.followLerp
+        );
 
         // Update game state
         this.scene.gameStateManager.updateState({ activeCharacter: 'shadow' });
+
+        // Dispatch custom event for UI updates
+        document.dispatchEvent(new CustomEvent('characterSwitch', {
+            detail: { activeCharacter: 'shadow' }
+        }));
     }
 
     createSwitchEffect() {
         const mainPos = this.mainCharacter.getPosition();
         const shadowPos = this.shadowCharacter.getPosition();
+        const switchConfig = this.gameConfig.CHARACTER_SWITCHING;
 
         // Create connection line effect
         const graphics = this.scene.add.graphics();
-        graphics.lineStyle(3, 0x9C27B0, 0.8);
+        graphics.lineStyle(3, parseInt(this.shadowConfig.VISUAL.shadowZoneTint), 0.8);
         graphics.lineBetween(mainPos.x, mainPos.y, shadowPos.x, shadowPos.y);
 
         // Fade out line
         this.scene.tweens.add({
             targets: graphics,
             alpha: 0,
-            duration: 300,
+            duration: switchConfig.effectDuration,
             onComplete: () => graphics.destroy()
         });
 
@@ -115,15 +150,17 @@ class CharacterManager {
     }
 
     createFollowStartEffect(x, y) {
+        const followConfig = this.shadowConfig.EFFECTS.trailParticles;
+
         // Ethereal particles to show shadow becoming follower
-        if (this.scene.textures.exists('switch-particle')) {
-            const emitter = this.scene.add.particles(x, y, 'switch-particle', {
+        if (this.scene.textures.exists(followConfig.texture)) {
+            const emitter = this.scene.add.particles(x, y, followConfig.texture, {
                 scale: { start: 0.4, end: 0 },
                 alpha: { start: 0.6, end: 0 },
                 speed: { min: 30, max: 60 },
                 lifespan: 800,
                 quantity: 6,
-                tint: 0x9C27B0
+                tint: parseInt(this.shadowConfig.VISUAL.shadowZoneTint)
             });
 
             this.scene.time.delayedCall(900, () => emitter.destroy());
@@ -131,15 +168,17 @@ class CharacterManager {
     }
 
     createFollowStopEffect(x, y) {
+        const enterConfig = this.shadowConfig.EFFECTS.enterEffect;
+
         // Solid particles to show shadow becoming solid/controllable
-        if (this.scene.textures.exists('switch-particle')) {
-            const emitter = this.scene.add.particles(x, y, 'switch-particle', {
-                scale: { start: 0.6, end: 0 },
-                alpha: { start: 1, end: 0 },
+        if (this.scene.textures.exists(enterConfig.texture)) {
+            const emitter = this.scene.add.particles(x, y, enterConfig.texture, {
+                scale: enterConfig.scale,
+                alpha: enterConfig.alpha,
                 speed: { min: 80, max: 120 },
                 lifespan: 600,
                 quantity: 10,
-                tint: 0x9C27B0
+                tint: parseInt(enterConfig.tint)
             });
 
             this.scene.time.delayedCall(700, () => emitter.destroy());
@@ -147,16 +186,20 @@ class CharacterManager {
     }
 
     createParticleBurst(x, y) {
-        const emitter = this.scene.add.particles(x, y, 'switch-particle', {
-            scale: { start: 0.6, end: 0 },
-            alpha: { start: 1, end: 0 },
-            speed: { min: 80, max: 150 },
-            lifespan: 500,
-            quantity: 12,
-            emitZone: { type: 'edge', source: new Phaser.Geom.Circle(0, 0, 5), quantity: 12 }
-        });
+        const switchConfig = this.gameConfig.PARTICLES.switchEffect;
 
-        this.scene.time.delayedCall(600, () => emitter.destroy());
+        if (this.scene.textures.exists(switchConfig.texture)) {
+            const emitter = this.scene.add.particles(x, y, switchConfig.texture, {
+                scale: switchConfig.scale,
+                alpha: switchConfig.alpha,
+                speed: switchConfig.speed,
+                lifespan: switchConfig.lifespan,
+                quantity: switchConfig.quantity,
+                emitZone: { type: 'edge', source: new Phaser.Geom.Circle(0, 0, 5), quantity: switchConfig.quantity }
+            });
+
+            this.scene.time.delayedCall(switchConfig.lifespan + 100, () => emitter.destroy());
+        }
     }
 
     getActiveCharacter() {

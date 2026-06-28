@@ -1,0 +1,200 @@
+{
+    "CATEGORIES": {
+        "MAIN_CHARACTER": "0x0001",
+        "SHADOW_CHARACTER": "0x0002",
+        "SOLID_PLATFORM": "0x0004",
+        "ONE_WAY_PLATFORM": "0x0008",
+        "SHADOW_ZONE": "0x0010",
+        "WORLD_BOUNDS": "0x0020",
+        "LIGHT_SOURCE": "0x0040",
+        "DYNAMIC_SHADOW_ZONE": "0x0080"
+    },
+    "PLATFORM_TYPES": {
+        "ground": {
+            "category": "0x0004",
+            "collidesWith": "0x0003",
+            "oneWay": false,
+            "thickness": 32,
+            "material": "stone",
+            "friction": 0.8,
+            "bounce": 0,
+            "castsShadows": true,
+            "shadowOpacity": 1.0
+        },
+        "float": {
+            "category": "0x0004",
+            "collidesWith": "0x0003",
+            "oneWay": false,
+            "thickness": 16,
+            "material": "wood",
+            "friction": 0.6,
+            "bounce": 0.1,
+            "castsShadows": true,
+            "shadowOpacity": 0.8
+        },
+        "oneWay": {
+            "category": "0x0008",
+            "collidesWith": "0x0003",
+            "oneWay": true,
+            "thickness": 8,
+            "material": "ethereal",
+            "friction": 0.7,
+            "bounce": 0,
+            "castsShadows": false,
+            "shadowOpacity": 0.3
+        },
+        "shadowOnly": {
+            "category": "0x0010",
+            "collidesWith": "0x0002",
+            "oneWay": false,
+            "thickness": 16,
+            "material": "shadow",
+            "friction": 0.9,
+            "bounce": 0,
+            "castsShadows": false,
+            "shadowOpacity": 0
+        }
+    },
+    "CHARACTER_PHYSICS": {
+        "main": {
+            "category": "0x0001",
+            "collidesWith": "0x0024",
+            "oneWayCollidesWith": "0x0008",
+            "shadowZoneCollidesWith": "0x0000",
+            "hitboxWidth": 28,
+            "hitboxHeight": 44,
+            "hitboxOffsetX": 2,
+            "hitboxOffsetY": 4,
+            "shadowCaster": true,
+            "shadowRadius": 15
+        },
+        "shadow": {
+            "category": "0x0002",
+            "collidesWith": "0x0034",
+            "oneWayCollidesWith": "0x0008",
+            "shadowZoneCollidesWith": "0x0090",
+            "hitboxWidth": 28,
+            "hitboxHeight": 44,
+            "hitboxOffsetX": 2,
+            "hitboxOffsetY": 4,
+            "shadowCaster": false,
+            "shadowRadius": 0
+        }
+    },
+    "LIGHT_SOURCE_PHYSICS": {
+        "torch": {
+            "category": "0x0040",
+            "collidesWith": "0x0000",
+            "radius": 120,
+            "castsShadows": true,
+            "blockedBy": "0x000C"
+        },
+        "lamp": {
+            "category": "0x0040",
+            "collidesWith": "0x0000",
+            "radius": 80,
+            "castsShadows": true,
+            "blockedBy": "0x000C"
+        },
+        "beacon": {
+            "category": "0x0040",
+            "collidesWith": "0x0000",
+            "radius": 200,
+            "castsShadows": true,
+            "blockedBy": "0x0004"
+        },
+        "candle": {
+            "category": "0x0040",
+            "collidesWith": "0x0000",
+            "radius": 60,
+            "castsShadows": true,
+            "blockedBy": "0x000C"
+        }
+    },
+    "SHADOW_ZONE_PHYSICS": {
+        "static": {
+            "category": "0x0010",
+            "collidesWith": "0x0002",
+            "allowsMovement": true,
+            "restrictMainCharacter": true,
+            "enhancesShadowAbilities": false
+        },
+        "dynamic": {
+            "category": "0x0080",
+            "collidesWith": "0x0002",
+            "allowsMovement": true,
+            "restrictMainCharacter": true,
+            "enhancesShadowAbilities": true
+        }
+    },
+    "ONE_WAY_SETTINGS": {
+        "velocityThreshold": -50,
+        "positionTolerance": 8,
+        "disableTime": 200,
+        "dropThroughVelocity": 100
+    },
+    "COLLISION_SETTINGS": {
+        "tileSize": 64,
+        "groundTileHeight": 32,
+        "floatTileHeight": 16,
+        "oneWayTileHeight": 8,
+        "shadowZoneHeight": 16,
+        "edgeTolerance": 2,
+        "slopeAngleTolerance": 45,
+        "shadowDetectionRadius": 5,
+        "lightRayStepSize": 4
+    },
+    "SHADOW_CASTING_SETTINGS": {
+        "maxShadowDistance": 300,
+        "shadowRayCount": 32,
+        "shadowResolution": 8,
+        "minimumShadowArea": 400,
+        "shadowMergeDistance": 20,
+        "shadowEdgeSmoothing": true,
+        "shadowBlur": 2,
+        "ambientShadowLevel": 0.3
+    },
+    "PERFORMANCE_SETTINGS": {
+        "maxLightsPerFrame": 5,
+        "shadowUpdateInterval": 16,
+        "spatialPartitionSize": 128,
+        "cullingDistance": 400,
+        "useObjectPooling": true,
+        "useSpatialIndexing": true,
+        "shadowLOD": true,
+        "dynamicQualityAdjustment": true
+    },
+    "DEBUG_COLORS": {
+        "solidPlatform": "0x00ff00",
+        "oneWayPlatform": "0xffff00",
+        "shadowZone": "0xff00ff",
+        "dynamicShadowZone": "0x9C27B0",
+        "characterHitbox": "0xff0000",
+        "collisionPoint": "0x00ffff",
+        "lightSource": "0xFFAA44",
+        "shadowRay": "0xFF4444",
+        "shadowBoundary": "0x444444",
+        "lightRadius": "0xFFFF00"
+    },
+    "MOVEMENT_RESTRICTIONS": {
+        "shadowOutsideZone": {
+            "speedMultiplier": 0.3,
+            "jumpMultiplier": 0.5,
+            "gracePeriod": 200,
+            "warningEffects": true
+        },
+        "mainInShadowZone": {
+            "pushbackForce": 150,
+            "damagePerSecond": 10,
+            "warningDistance": 30,
+            "pushbackDirection": "nearest_safe"
+        }
+    },
+    "INTERACTION_SETTINGS": {
+        "switchActivationRadius": 40,
+        "lightSourceInteractionRadius": 50,
+        "shadowZoneTransitionTime": 300,
+        "characterSwitchCooldown": 200,
+        "platformDropThroughHoldTime": 100
+    }
+}
