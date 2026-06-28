@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:#0c0c18;}
+  *{box-sizing:border-box;}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.85}}
+  @keyframes dashflow{to{stroke-dashoffset:-44}}
+  @keyframes portalPulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:.85;transform:scale(1.06)}}
+  @keyframes spinSlow{to{transform:rotate(360deg)}}
+  @keyframes glowPulse{0%,100%{opacity:.55}50%{opacity:1}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#0c0c18;padding:22px 26px 48px;font-family:'IBM Plex Mono', ui-monospace, monospace;color:#cfe0ea;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;max-width:1600px;margin:0 auto 14px;font-size:12.5px;letter-spacing:.5px;color:#5f7488;border-bottom:1px solid #1d2840;padding-bottom:10px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="width:9px;height:9px;border-radius:50%;background:#FFAA44;box-shadow:0 0 8px #FFAA44;"></span>
+      <span style="color:#8fa6b8;">shadow_swap</span><span style="color:#3c4a63;">▸</span><span style="color:#AAFFFF;">level_01.blueprint</span>
+    </div>
+    <div style="display:flex;gap:18px;color:#52677c;">
+      <span>WORLD&nbsp;1600&times;1200</span><span>GRAVITY&nbsp;&darr;</span><span style="color:#7d6a8f;">v1.0</span>
+    </div>
+  </div>
+
+  <div style="max-width:1600px;margin:0 auto;border:1px solid #233152;border-radius:8px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.6), inset 0 0 0 1px rgba(170,255,255,.04);">
+    <svg viewBox="0 0 1600 1200" width="100%" style="display:block;height:auto;" fontFamily="'IBM Plex Mono', monospace">
+      <defs>
+        <linearGradient id="bgGrad" x1="0" y1="0" x2="0.25" y2="1">
+          <stop offset="0%" stopColor="#1a1a2e"/>
+          <stop offset="55%" stopColor="#152138"/>
+          <stop offset="100%" stopColor="#0f3460"/>
+        </linearGradient>
+        <linearGradient id="stoneGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#46566a"/>
+          <stop offset="14%" stopColor="#3a4858"/>
+          <stop offset="100%" stopColor="#222d3b"/>
+        </linearGradient>
+        <linearGradient id="woodGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#b78a54"/>
+          <stop offset="100%" stopColor="#7c5a32"/>
+        </linearGradient>
+        <radialGradient id="amberGlow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stopColor="#FFD9A0" stopOpacity="0.95"/>
+          <stop offset="32%" stopColor="#FFAA44" stopOpacity="0.55"/>
+          <stop offset="100%" stopColor="#FFAA44" stopOpacity="0"/>
+        </radialGradient>
+        <radialGradient id="skyGlow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stopColor="#2a3a66" stopOpacity="0.6"/>
+          <stop offset="100%" stopColor="#2a3a66" stopOpacity="0"/>
+        </radialGradient>
+        <radialGradient id="portalGlow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stopColor="#AAFFFF" stopOpacity="0.9"/>
+          <stop offset="45%" stopColor="#5fd6e0" stopOpacity="0.4"/>
+          <stop offset="100%" stopColor="#9C27B0" stopOpacity="0"/>
+        </radialGradient>
+        <radialGradient id="mainGlow" cx="0.5" cy="0.45" r="0.55">
+          <stop offset="0%" stopColor="#eafcff" stopOpacity="1"/>
+          <stop offset="40%" stopColor="#AAFFFF" stopOpacity="0.85"/>
+          <stop offset="100%" stopColor="#AAFFFF" stopOpacity="0"/>
+        </radialGradient>
+        <radialGradient id="shadowAura" cx="0.5" cy="0.45" r="0.55">
+          <stop offset="0%" stopColor="#9C27B0" stopOpacity="0.6"/>
+          <stop offset="100%" stopColor="#9C27B0" stopOpacity="0"/>
+        </radialGradient>
+        <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+          <path d="M80 0 H0 V80" fill="none" stroke="#AAFFFF" strokeOpacity="0.05" strokeWidth="1"/>
+        </pattern>
+        <filter id="blurSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+        <filter id="blurBig" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="22"/></filter>
+        <filter id="blurZone" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="13"/></filter>
+      </defs>
+
+      <rect x="0" y="0" width="1600" height="1200" fill="url(#bgGrad)"/>
+      <rect x="0" y="0" width="1600" height="1200" fill="url(#grid)"/>
+      <ellipse cx="1095" cy="838" rx="430" ry="430" fill="url(#skyGlow)"/>
+      <ellipse cx="300" cy="300" rx="360" ry="360" fill="url(#skyGlow)" opacity="0.5"/>
+
+      <g>
+        <circle cx="430" cy="170" r="3" fill="#AAFFFF" style="animation:twinkle 4.5s ease-in-out infinite"/>
+        <circle cx="640" cy="120" r="2" fill="#FFAA44" style="animation:twinkle 6s ease-in-out .8s infinite"/>
+        <circle cx="820" cy="230" r="2.5" fill="#AAFFFF" style="animation:twinkle 5.2s ease-in-out 1.4s infinite"/>
+        <rect x="540" y="300" width="7" height="7" fill="#9C27B0" transform="rotate(45 543 303)" style="animation:floatY 7s ease-in-out infinite;transform-box:fill-box;transform-origin:center" opacity="0.7"/>
+        <rect x="1010" y="180" width="6" height="6" fill="#AAFFFF" transform="rotate(45 1013 183)" style="animation:floatY 8s ease-in-out 1s infinite;transform-box:fill-box;transform-origin:center" opacity="0.6"/>
+        <circle cx="170" cy="360" r="2" fill="#AAFFFF" style="animation:twinkle 5s ease-in-out .5s infinite"/>
+        <rect x="380" y="250" width="6" height="6" fill="#9C27B0" transform="rotate(45 383 253)" style="animation:floatY 9s ease-in-out .4s infinite;transform-box:fill-box;transform-origin:center" opacity="0.55"/>
+        <circle cx="1240" cy="640" r="2.5" fill="#FFAA44" style="animation:twinkle 6.5s ease-in-out 1.1s infinite" opacity="0.7"/>
+        <circle cx="700" cy="500" r="2" fill="#AAFFFF" style="animation:twinkle 4.8s ease-in-out .9s infinite"/>
+        <rect x="1320" y="320" width="7" height="7" fill="#AAFFFF" transform="rotate(45 1323 323)" style="animation:floatY 7.5s ease-in-out .2s infinite;transform-box:fill-box;transform-origin:center" opacity="0.5"/>
+        <circle cx="90" cy="520" r="2" fill="#9C27B0" style="animation:twinkle 5.5s ease-in-out 1.6s infinite" opacity="0.7"/>
+        <rect x="900" y="300" width="5" height="5" fill="#FFAA44" transform="rotate(45 902 302)" style="animation:floatY 8.5s ease-in-out .7s infinite;transform-box:fill-box;transform-origin:center" opacity="0.5"/>
+      </g>
+
+      <g>
+        <text x="60" y="92" fontSize="56" fontWeight="700" fill="#eaf6ff" letterSpacing="7" style="filter:drop-shadow(0 0 14px rgba(170,255,255,.35))">SHADOW SWAP</text>
+        <text x="63" y="128" fontSize="20" fontWeight="500" fill="#AAFFFF" letterSpacing="6">LEVEL 1 — SHADOW AWAKENING</text>
+        <text x="63" y="162" fontSize="14.5" fill="#8ba2b6" letterSpacing="0.5">CORE MECHANIC ▸ press <tspan fill="#FFD9A0" fontWeight="600">[F]</tspan> to hand control to your Shadow — the Main freezes where it stands.</text>
+        <text x="63" y="184" fontSize="14.5" fill="#6f8498" letterSpacing="0.5">Every beat below is engineered to be <tspan fill="#d68fe0" fontWeight="600">unsolvable as the Main alone.</tspan></text>
+      </g>
+
+      <g>
+        <rect x="1196" y="44" width="368" height="486" rx="9" fill="#0e1626" fillOpacity="0.82" stroke="#2c3c5e" strokeWidth="1.2"/>
+        <rect x="1196" y="44" width="368" height="34" rx="9" fill="#16223a"/>
+        <text x="1216" y="67" fontSize="14" fontWeight="600" fill="#AAFFFF" letterSpacing="4">LEGEND</text>
+        <text x="1500" y="67" fontSize="11.5" fill="#4d6076" letterSpacing="1">SCHEMATIC</text>
+
+        <g transform="translate(1216,104)" fontSize="14">
+          <rect x="0" y="-13" width="30" height="17" rx="2" fill="url(#stoneGrad)" stroke="#5a6e82"/>
+          <text x="44" y="0" fill="#cbdae6">ground <tspan fill="#5f7488">· solid stone</tspan></text>
+        </g>
+        <g transform="translate(1216,140)" fontSize="14">
+          <rect x="0" y="-13" width="30" height="17" rx="2" fill="url(#woodGrad)" stroke="#caa05f"/>
+          <text x="44" y="0" fill="#cbdae6">float <tspan fill="#5f7488">· wood ledge</tspan></text>
+        </g>
+        <g transform="translate(1216,176)" fontSize="14">
+          <rect x="0" y="-13" width="30" height="17" rx="2" fill="#4caf72" fillOpacity="0.4" stroke="#6fdf9a" strokeDasharray="4 3"/>
+          <text x="44" y="0" fill="#cbdae6">oneWay <tspan fill="#5f7488">· jump-through</tspan></text>
+        </g>
+        <g transform="translate(1216,212)" fontSize="14">
+          <rect x="0" y="-13" width="30" height="17" rx="2" fill="#9C27B0" fillOpacity="0.55" stroke="#d68fe0"/>
+          <text x="44" y="0" fill="#cbdae6">shadowOnly <tspan fill="#5f7488">· Shadow only</tspan></text>
+        </g>
+        <g transform="translate(1216,248)" fontSize="14">
+          <circle cx="15" cy="-5" r="11" fill="url(#amberGlow)"/><circle cx="15" cy="-5" r="3.5" fill="#FFD9A0"/>
+          <text x="44" y="0" fill="#cbdae6">light source <tspan fill="#5f7488">· casts shadow</tspan></text>
+        </g>
+        <g transform="translate(1216,284)" fontSize="14">
+          <rect x="0" y="-13" width="30" height="17" rx="2" fill="#241638" stroke="#5b3a78"/>
+          <text x="44" y="0" fill="#cbdae6">shadow zone <tspan fill="#5f7488">· Shadow's road</tspan></text>
+        </g>
+        <g transform="translate(1216,320)" fontSize="14">
+          <rect x="9" y="-10" width="12" height="12" rx="2" fill="#1b2840" stroke="#AAFFFF"/><rect x="13" y="-18" width="4" height="9" fill="#AAFFFF"/>
+          <text x="44" y="0" fill="#cbdae6">switch <tspan fill="#5f7488">· toggled by a twin</tspan></text>
+        </g>
+        <g transform="translate(1216,356)" fontSize="14">
+          <circle cx="15" cy="-5" r="11" fill="none" stroke="#AAFFFF" strokeWidth="2"/><circle cx="15" cy="-5" r="5" fill="url(#portalGlow)"/>
+          <text x="44" y="0" fill="#cbdae6">exit portal <tspan fill="#5f7488">· win condition</tspan></text>
+        </g>
+        <line x1="1216" y1="380" x2="1544" y2="380" stroke="#243250" strokeWidth="1"/>
+        <g transform="translate(1216,412)" fontSize="14">
+          <circle cx="15" cy="-5" r="12" fill="url(#mainGlow)"/><circle cx="15" cy="-7" r="4" fill="#eafcff"/>
+          <text x="44" y="0" fill="#eafcff" fontWeight="600">MAIN <tspan fill="#5f7488" fontWeight="400">· luminous, can't enter shadow</tspan></text>
+        </g>
+        <g transform="translate(1216,450)" fontSize="14">
+          <circle cx="15" cy="-5" r="12" fill="url(#shadowAura)"/><circle cx="15" cy="-7" r="6" fill="#1a0f2e" stroke="#9C27B0"/>
+          <text x="44" y="0" fill="#d68fe0" fontWeight="600">SHADOW <tspan fill="#5f7488" fontWeight="400">· thrives in the dark</tspan></text>
+        </g>
+        <g transform="translate(1216,488)" fontSize="13">
+          <text x="0" y="0" fill="#5f7488">— = revealed / conditional element</text>
+        </g>
+      </g>
+
+      <g stroke="#9C27B0" strokeWidth="2.4" fill="none" strokeOpacity="0.5">
+        <rect x="40" y="430" width="440" height="710" rx="12" stroke="none" fill="#AAFFFF" fillOpacity="0.06" strokeDasharray="0" style="{{ hlA }}"/>
+        <rect x="480" y="430" width="380" height="710" rx="12" stroke="none" fill="#AAFFFF" fillOpacity="0.06" style="{{ hlB }}"/>
+        <rect x="860" y="430" width="330" height="710" rx="12" stroke="none" fill="#AAFFFF" fillOpacity="0.06" style="{{ hlC }}"/>
+        <rect x="1190" y="430" width="386" height="710" rx="12" stroke="none" fill="#AAFFFF" fillOpacity="0.06" style="{{ hlD }}"/>
+      </g>
+      <g fill="none" strokeWidth="2.2" strokeDasharray="9 7" strokeLinejoin="round">
+        <rect x="40" y="430" width="440" height="710" rx="12" stroke="#AAFFFF" style="{{ hlA }}"/>
+        <rect x="480" y="430" width="380" height="710" rx="12" stroke="#AAFFFF" style="{{ hlB }}"/>
+        <rect x="860" y="430" width="330" height="710" rx="12" stroke="#AAFFFF" style="{{ hlC }}"/>
+        <rect x="1190" y="430" width="386" height="710" rx="12" stroke="#AAFFFF" style="{{ hlD }}"/>
+      </g>
+
+      <g>
+        <text x="60" y="470" fontSize="13" fill="#3f546b" letterSpacing="3">BEAT A · WALK &amp; JUMP</text>
+        <text x="500" y="470" fontSize="13" fill="#3f546b" letterSpacing="3">BEAT B · THE SWAP</text>
+        <text x="880" y="588" fontSize="13" fill="#3f546b" letterSpacing="3">BEAT C · SHADOW ROAD</text>
+        <text x="1210" y="640" fontSize="13" fill="#3f546b" letterSpacing="3">BEAT D · COORDINATE</text>
+      </g>
+
+      <rect x="60" y="950" width="170" height="190" fill="url(#stoneGrad)" stroke="#5a6e82" strokeWidth="1.4"/>
+      <rect x="60" y="950" width="170" height="6" fill="#6f8499" opacity="0.6"/>
+      <rect x="300" y="950" width="110" height="190" fill="url(#stoneGrad)" stroke="#5a6e82" strokeWidth="1.4"/>
+      <rect x="300" y="950" width="110" height="6" fill="#6f8499" opacity="0.6"/>
+      <rect x="380" y="870" width="120" height="90" fill="url(#stoneGrad)" stroke="#5a6e82" strokeWidth="1.4"/>
+      <rect x="380" y="870" width="120" height="6" fill="#6f8499" opacity="0.6"/>
+
+      <rect x="740" y="870" width="160" height="270" fill="url(#stoneGrad)" stroke="#5a6e82" strokeWidth="1.4"/>
+      <rect x="740" y="870" width="160" height="6" fill="#6f8499" opacity="0.6"/>
+
+      <rect x="500" y="905" width="240" height="20" rx="3" fill="#9C27B0" fillOpacity="0.5" stroke="#d68fe0" strokeWidth="1.6"/>
+
+      <g style="{{ revealedStyle }}">
+        <rect x="500" y="862" width="240" height="18" rx="3" fill="url(#woodGrad)" stroke="#e0c089" strokeWidth="1.6" strokeDasharray="7 5"/>
+        <text x="556" y="852" fontSize="13.5" fill="#e8c98f">▸ revealed by switch ①</text>
+      </g>
+
+      <g transform="translate(806,870)">
+        <rect x="-4" y="-2" width="34" height="12" rx="2" fill="#1b2840" stroke="#AAFFFF" strokeWidth="1.4"/>
+        <rect x="9" y="-16" width="5" height="16" rx="1" fill="#AAFFFF"/>
+        <circle cx="11.5" cy="-18" r="4" fill="#AAFFFF" style="filter:drop-shadow(0 0 5px #AAFFFF)"/>
+      </g>
+
+      <rect x="900" y="470" width="48" height="400" fill="url(#stoneGrad)" stroke="#5a6e82" strokeWidth="1.4"/>
+      <rect x="872" y="456" width="120" height="16" rx="2" fill="url(#stoneGrad)" stroke="#5a6e82" strokeWidth="1.4"/>
+      <rect x="946" y="870" width="400" height="270" fill="url(#stoneGrad)" stroke="#5a6e82" strokeWidth="1.4"/>
+      <rect x="946" y="870" width="400" height="6" fill="#6f8499" opacity="0.6"/>
+
+      <g filter="url(#blurZone)" opacity="0.85">
+        <path d="M 824 872 C 800 660 826 510 902 466 C 956 476 978 524 968 596 L 950 596 L 950 872 Z" fill="#241638" fillOpacity="0.85"/>
+        <path d="M 850 872 C 836 690 854 548 910 500 L 944 500 L 944 872 Z" fill="#3a1f5e" fillOpacity="0.6"/>
+      </g>
+      <path d="M 852 866 L 860 600 L 905 472 L 946 472" fill="none" stroke="#b06fd0" strokeWidth="2.4" strokeDasharray="3 8" strokeLinecap="round" opacity="0.85"/>
+
+      <g style="{{ gateClosedStyle }}">
+        <rect x="900" y="724" width="48" height="146" fill="url(#stoneGrad)" stroke="#5a6e82" strokeWidth="1"/>
+      </g>
+      <rect x="900" y="724" width="48" height="146" fill="none" stroke="#AAFFFF" strokeWidth="1.6" strokeDasharray="6 5" opacity="0.7"/>
+      <text x="956" y="806" fontSize="13.5" fill="#9fdbe2">gate — opens on ②</text>
+
+      <g transform="translate(916,456)">
+        <rect x="0" y="-2" width="34" height="12" rx="2" fill="#1b2840" stroke="#AAFFFF" strokeWidth="1.4"/>
+        <rect x="13" y="-16" width="5" height="16" rx="1" fill="#FFAA44"/>
+        <circle cx="15.5" cy="-18" r="4" fill="#FFD9A0" style="filter:drop-shadow(0 0 5px #FFAA44)"/>
+      </g>
+
+      <g>
+        <circle cx="1086" cy="844" r="92" fill="url(#amberGlow)" style="animation:glowPulse 4s ease-in-out infinite"/>
+        <circle cx="1086" cy="844" r="11" fill="#FFE8C0" stroke="#FFAA44" strokeWidth="2"/>
+        <circle cx="1086" cy="844" r="5" fill="#fff7e6"/>
+        <text x="1086" y="956" fontSize="13.5" fill="#FFCF8a" textAnchor="middle">light source</text>
+      </g>
+
+      <g transform="translate(1255,870)">
+        <rect x="-26" y="-3" width="52" height="11" rx="2" fill="#1b2840" stroke="#AAFFFF" strokeWidth="1.4"/>
+        <rect x="-18" y="-7" width="36" height="5" rx="1" fill="#AAFFFF" opacity="0.55"/>
+        <text x="0" y="-16" fontSize="13.5" fill="#9fdbe2" textAnchor="middle">switch ③</text>
+      </g>
+
+      <g style="{{ revealedStyle }}">
+        <rect x="1372" y="886" width="62" height="16" rx="3" fill="#4caf72" fillOpacity="0.42" stroke="#6fdf9a" strokeWidth="1.6" strokeDasharray="6 4"/>
+        <rect x="1446" y="900" width="62" height="16" rx="3" fill="#4caf72" fillOpacity="0.42" stroke="#6fdf9a" strokeWidth="1.6" strokeDasharray="6 4"/>
+        <text x="1372" y="876" fontSize="13.5" fill="#86e3a6">lit path ▸ ③ held</text>
+      </g>
+
+      <rect x="1486" y="918" width="120" height="18" rx="3" fill="url(#woodGrad)" stroke="#caa05f" strokeWidth="1.4"/>
+      <rect x="1486" y="936" width="120" height="204" fill="url(#stoneGrad)" stroke="#5a6e82" strokeWidth="1.4" opacity="0.85"/>
+
+      <g>
+        <ellipse cx="1546" cy="826" rx="62" ry="96" fill="url(#portalGlow)" style="animation:portalPulse 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center"/>
+        <ellipse cx="1546" cy="826" rx="34" ry="70" fill="none" stroke="#AAFFFF" strokeWidth="2.4" opacity="0.9"/>
+        <ellipse cx="1546" cy="826" rx="34" ry="70" fill="none" stroke="#d68fe0" strokeWidth="1.4" strokeDasharray="5 9" style="animation:spinSlow 9s linear infinite;transform-box:fill-box;transform-origin:center" opacity="0.8"/>
+        <ellipse cx="1546" cy="826" rx="16" ry="42" fill="#AAFFFF" fillOpacity="0.25"/>
+        <text x="1546" y="700" fontSize="15" fontWeight="600" fill="#AAFFFF" textAnchor="middle" letterSpacing="2" style="filter:drop-shadow(0 0 8px rgba(170,255,255,.5))">EXIT PORTAL</text>
+        <text x="1546" y="720" fontSize="12.5" fill="#7f9fb2" textAnchor="middle">win condition</text>
+      </g>
+
+      <sc-if value="{{ showRoutes }}" hint-placeholder-val="{{ true }}">
+        <g fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M 122 938 L 196 938 Q 265 880 300 938 L 380 938 L 430 866 L 500 866 L 740 866 L 802 866 Q 880 820 924 800 L 946 866 L 1255 866 Q 1320 836 1372 880 L 1446 894 L 1546 900"
+                stroke="#AAFFFF" strokeOpacity="0.55" strokeDasharray="2 9" style="animation:dashflow 1.4s linear infinite"/>
+          <path d="M 160 938 L 430 866 L 500 896 L 740 896 L 806 866 L 858 600 L 905 472 L 946 472 Q 1010 540 1086 760 L 1255 862"
+                stroke="#b06fd0" strokeOpacity="0.6" strokeDasharray="2 10" style="animation:dashflow 1.6s linear infinite"/>
+        </g>
+        <g fontSize="12.5" fontWeight="600">
+          <rect x="206" y="918" width="86" height="20" rx="10" fill="#0c1626" stroke="#AAFFFF" strokeOpacity="0.4"/>
+          <text x="249" y="932" fill="#AAFFFF" textAnchor="middle">MAIN path</text>
+          <rect x="560" y="788" width="100" height="20" rx="10" fill="#0c1626" stroke="#b06fd0" strokeOpacity="0.5"/>
+          <text x="610" y="802" fill="#d68fe0" textAnchor="middle">SHADOW path</text>
+        </g>
+      </sc-if>
+
+      <sc-if value="{{ showGhosts }}" hint-placeholder-val="{{ true }}">
+        <g opacity="0.34">
+          <g transform="translate(620,896)"><circle cx="0" cy="-30" r="20" fill="url(#shadowAura)"/><rect x="-9" y="-44" width="18" height="34" rx="8" fill="#1a0f2e" stroke="#9C27B0" strokeWidth="1.2"/></g>
+          <g transform="translate(929,472)"><circle cx="0" cy="-30" r="20" fill="url(#shadowAura)"/><rect x="-9" y="-44" width="18" height="34" rx="8" fill="#1a0f2e" stroke="#9C27B0" strokeWidth="1.2"/></g>
+          <g transform="translate(1430,866)"><circle cx="0" cy="-30" r="22" fill="url(#mainGlow)"/><rect x="-8" y="-44" width="16" height="34" rx="7" fill="#eafcff"/></g>
+        </g>
+      </sc-if>
+
+      <g transform="translate(120,950)">
+        <ellipse cx="0" cy="2" rx="26" ry="8" fill="#000" opacity="0.3"/>
+        <circle cx="0" cy="-34" r="30" fill="url(#mainGlow)" style="animation:glowPulse 3.2s ease-in-out infinite"/>
+        <rect x="-11" y="-50" width="22" height="40" rx="9" fill="#eafcff"/>
+        <circle cx="0" cy="-54" r="9" fill="#ffffff"/>
+        <circle cx="0" cy="-30" r="4" fill="#AAFFFF" opacity="0.8"/>
+        <text x="0" y="-86" fontSize="14" fontWeight="700" fill="#eafcff" textAnchor="middle" letterSpacing="2">MAIN</text>
+        <text x="0" y="-70" fontSize="11.5" fill="#7f9fb2" textAnchor="middle">start</text>
+      </g>
+      <g transform="translate(168,950)">
+        <ellipse cx="0" cy="2" rx="24" ry="7" fill="#000" opacity="0.25"/>
+        <circle cx="0" cy="-32" r="28" fill="url(#shadowAura)"/>
+        <rect x="-10" y="-48" width="20" height="38" rx="9" fill="#1a0f2e" fillOpacity="0.92" stroke="#9C27B0" strokeWidth="1.4"/>
+        <circle cx="0" cy="-52" r="8" fill="#241638" stroke="#9C27B0" strokeWidth="1.2"/>
+        <text x="3" y="-86" fontSize="14" fontWeight="700" fill="#d68fe0" textAnchor="middle" letterSpacing="2">SHADOW</text>
+      </g>
+      <g transform="translate(238,884)">
+        <rect x="-26" y="-15" width="52" height="26" rx="6" fill="#0c1626" stroke="#FFAA44" strokeOpacity="0.6"/>
+        <text x="0" y="3" fontSize="14" fontWeight="700" fill="#FFD9A0" textAnchor="middle">F ⇄</text>
+      </g>
+
+      <g fontSize="13.5" fill="#cfe0ea">
+        <text x="540" y="965" fill="#d68fe0">shadowOnly bridge — Main phases through</text>
+        <line x1="620" y1="930" x2="620" y2="950" stroke="#d68fe0" strokeWidth="1" strokeOpacity="0.5"/>
+        <text x="956" y="560" fill="#cbd9e4">TALL WALL — blocks the Main</text>
+        <text x="772" y="700" fill="#b888d6">shadow zone</text>
+        <text x="772" y="718" fontSize="12" fill="#7a6190">Shadow's road, up &amp; over</text>
+      </g>
+
+      <g fontWeight="700" fontSize="20">
+        <g transform="translate(250,792)" onMouseEnter="{{ enterA }}" onMouseLeave="{{ leave }}" style="cursor:default">
+          <circle r="19" fill="#0c1626" stroke="#AAFFFF" strokeWidth="2"/><text y="7" textAnchor="middle" fill="#AAFFFF">1</text>
+        </g>
+        <g transform="translate(620,840)" onMouseEnter="{{ enterB }}" onMouseLeave="{{ leave }}" style="cursor:default">
+          <circle r="19" fill="#0c1626" stroke="#d68fe0" strokeWidth="2"/><text y="7" textAnchor="middle" fill="#d68fe0">2</text>
+        </g>
+        <g transform="translate(930,410)" onMouseEnter="{{ enterC }}" onMouseLeave="{{ leave }}" style="cursor:default">
+          <circle r="19" fill="#0c1626" stroke="#FFD9A0" strokeWidth="2"/><text y="7" textAnchor="middle" fill="#FFD9A0">3</text>
+        </g>
+        <g transform="translate(1255,786)" onMouseEnter="{{ enterD }}" onMouseLeave="{{ leave }}" style="cursor:default">
+          <circle r="19" fill="#0c1626" stroke="#AAFFFF" strokeWidth="2"/><text y="7" textAnchor="middle" fill="#AAFFFF">4</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <div style="max-width:1600px;margin:18px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+
+    <div onMouseEnter="{{ enterA }}" onMouseLeave="{{ leave }}" style="background:#0e1626;border:1px solid #233152;border-top:2px solid #AAFFFF;border-radius:8px;padding:16px 16px 18px;transition:border-color .2s, box-shadow .2s, transform .2s;" style-hover="border-color:#AAFFFF;box-shadow:0 0 0 1px rgba(170,255,255,.3), 0 14px 34px rgba(0,0,0,.5);transform:translateY(-3px)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="width:30px;height:30px;border-radius:50%;border:2px solid #AAFFFF;display:flex;align-items:center;justify-content:center;font-weight:700;color:#AAFFFF;font-size:16px;">1</span>
+        <span style="font-size:15px;font-weight:700;letter-spacing:1.5px;color:#eafcff;">WALK &amp; JUMP</span>
+      </div>
+      <div style="font-size:11px;letter-spacing:2px;color:#FFD9A0;margin-bottom:4px;">TEACHES</div>
+      <p style="margin:0 0 12px;font-size:13px;line-height:1.55;color:#9fb3c6;">Core movement — run flat ground, hop one small gap, step up a ledge. The two twins stand together; nothing forces a swap yet.</p>
+      <div style="font-size:11px;letter-spacing:2px;color:#6f8498;margin-bottom:4px;">SWAP</div>
+      <p style="margin:0;font-size:13px;line-height:1.55;color:#6f8498;">Not required — this is the baseline the next three beats break.</p>
+    </div>
+
+    <div onMouseEnter="{{ enterB }}" onMouseLeave="{{ leave }}" style="background:#0e1626;border:1px solid #233152;border-top:2px solid #9C27B0;border-radius:8px;padding:16px 16px 18px;transition:border-color .2s, box-shadow .2s, transform .2s;" style-hover="border-color:#d68fe0;box-shadow:0 0 0 1px rgba(214,143,224,.3), 0 14px 34px rgba(0,0,0,.5);transform:translateY(-3px)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="width:30px;height:30px;border-radius:50%;border:2px solid #d68fe0;display:flex;align-items:center;justify-content:center;font-weight:700;color:#d68fe0;font-size:16px;">2</span>
+        <span style="font-size:15px;font-weight:700;letter-spacing:1.5px;color:#eafcff;">THE SWAP</span>
+      </div>
+      <div style="font-size:11px;letter-spacing:2px;color:#FFD9A0;margin-bottom:4px;">TEACHES</div>
+      <p style="margin:0 0 12px;font-size:13px;line-height:1.55;color:#9fb3c6;">Press <b style="color:#FFD9A0;">[F]</b> to swap. The gap is too wide to jump and the only span is a <b style="color:#d68fe0;">shadowOnly</b> bridge.</p>
+      <div style="font-size:11px;letter-spacing:2px;color:#6f8498;margin-bottom:4px;">WHY MANDATORY</div>
+      <p style="margin:0;font-size:13px;line-height:1.55;color:#9fb3c6;">The Main falls straight through purple. Only the Shadow can cross to hit <b style="color:#AAFFFF;">switch ①</b>, dropping a solid bridge — then swap back and walk the Main over.</p>
+    </div>
+
+    <div onMouseEnter="{{ enterC }}" onMouseLeave="{{ leave }}" style="background:#0e1626;border:1px solid #233152;border-top:2px solid #FFAA44;border-radius:8px;padding:16px 16px 18px;transition:border-color .2s, box-shadow .2s, transform .2s;" style-hover="border-color:#FFD9A0;box-shadow:0 0 0 1px rgba(255,170,68,.3), 0 14px 34px rgba(0,0,0,.5);transform:translateY(-3px)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="width:30px;height:30px;border-radius:50%;border:2px solid #FFD9A0;display:flex;align-items:center;justify-content:center;font-weight:700;color:#FFD9A0;font-size:16px;">3</span>
+        <span style="font-size:15px;font-weight:700;letter-spacing:1.5px;color:#eafcff;">SHADOW ROAD</span>
+      </div>
+      <div style="font-size:11px;letter-spacing:2px;color:#FFD9A0;margin-bottom:4px;">TEACHES</div>
+      <p style="margin:0 0 12px;font-size:13px;line-height:1.55;color:#9fb3c6;">A <b style="color:#FFD9A0;">light source</b> casts a shadow zone up &amp; over a tall wall. Inside the dark, the Shadow can climb where there's no floor.</p>
+      <div style="font-size:11px;letter-spacing:2px;color:#6f8498;margin-bottom:4px;">WHY MANDATORY</div>
+      <p style="margin:0;font-size:13px;line-height:1.55;color:#9fb3c6;">The wall stops the Main and the shadow zone pushes it back. Only the Shadow rides the zone to <b style="color:#AAFFFF;">switch ②</b>, opening the gate so the Main can pass.</p>
+    </div>
+
+    <div onMouseEnter="{{ enterD }}" onMouseLeave="{{ leave }}" style="background:#0e1626;border:1px solid #233152;border-top:2px solid #AAFFFF;border-radius:8px;padding:16px 16px 18px;transition:border-color .2s, box-shadow .2s, transform .2s;" style-hover="border-color:#AAFFFF;box-shadow:0 0 0 1px rgba(170,255,255,.3), 0 14px 34px rgba(0,0,0,.5);transform:translateY(-3px)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="width:30px;height:30px;border-radius:50%;border:2px solid #AAFFFF;display:flex;align-items:center;justify-content:center;font-weight:700;color:#AAFFFF;font-size:16px;">4</span>
+        <span style="font-size:15px;font-weight:700;letter-spacing:1.5px;color:#eafcff;">COORDINATE</span>
+      </div>
+      <div style="font-size:11px;letter-spacing:2px;color:#FFD9A0;margin-bottom:4px;">TEACHES</div>
+      <p style="margin:0 0 12px;font-size:13px;line-height:1.55;color:#9fb3c6;">Hold one twin in place to change the world for the other. The lit stepping path only exists while a body weighs <b style="color:#AAFFFF;">switch ③</b>.</p>
+      <div style="font-size:11px;letter-spacing:2px;color:#6f8498;margin-bottom:4px;">WHY MANDATORY</div>
+      <p style="margin:0;font-size:13px;line-height:1.55;color:#9fb3c6;">One twin can't be in two places. Leave the Shadow frozen on the switch, swap to the Main, and jump the lit path to the <b style="color:#AAFFFF;">exit portal</b>.</p>
+    </div>
+  </div>
+
+  <div style="max-width:1600px;margin:16px auto 0;display:flex;align-items:center;gap:8px;font-size:12px;color:#4d6076;letter-spacing:.5px;">
+    <span style="width:7px;height:7px;border-radius:50%;background:#9C27B0;"></span>
+    <span>Hover any beat card or numbered marker to highlight its region. Toggle motion paths, choreography ghosts, and the solved state in Tweaks.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showRoutes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Annotations&quot;},&quot;showGhosts&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Annotations&quot;},&quot;solved&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;State&quot;}}">
+class Component extends DCLogic {
+  state = { activeBeat: null };
+  renderVals() {
+    const sp = this.props || {};
+    const ab = this.state.activeBeat;
+    const hl = (k) => ({ opacity: ab === k ? 1 : 0, transition: 'opacity .25s ease' });
+    const solved = sp.solved ?? false;
+    return {
+      showRoutes: sp.showRoutes ?? true,
+      showGhosts: sp.showGhosts ?? true,
+      revealedStyle: { opacity: solved ? 1 : 0.42, transition: 'opacity .3s ease' },
+      gateClosedStyle: { opacity: solved ? 0 : 1, transition: 'opacity .3s ease' },
+      enterA: () => this.setState({ activeBeat: 'A' }),
+      enterB: () => this.setState({ activeBeat: 'B' }),
+      enterC: () => this.setState({ activeBeat: 'C' }),
+      enterD: () => this.setState({ activeBeat: 'D' }),
+      leave: () => this.setState({ activeBeat: null }),
+      hlA: hl('A'), hlB: hl('B'), hlC: hl('C'), hlD: hl('D'),
+    };
+  }
+}
+</script>
+</body>
+</html>

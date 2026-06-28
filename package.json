@@ -1,0 +1,21 @@
+{
+  "name": "shadowswap",
+  "version": "1.0.0",
+  "description": "[# shadowswap\r A platformer game which challenges your thinking\r ](https://via.placeholder.com/800x400?text=Shadow+Swap+Banner",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/balpreets10/shadowswap.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/balpreets10/shadowswap/issues"
+  },
+  "homepage": "https://github.com/balpreets10/shadowswap#readme"
+}

@@ -13,10 +13,10 @@
         "runFrameRate": 10
     },
     "VISUAL": {
-        "baseAlpha": 0.7,
-        "activeAlpha": 0.9,
-        "inactiveAlpha": 0.35,
-        "followingAlpha": 0.4,
+        "baseAlpha": 0.85,
+        "activeAlpha": 0.95,
+        "inactiveAlpha": 0.4,
+        "followingAlpha": 0.5,
         "activeTint": "0xffffff",
         "inactiveTint": "0x888888",
         "followingTint": "0x9C27B0",
@@ -24,7 +24,7 @@
         "shadowZoneTint": "0x9C27B0"
     },
     "FOLLOWING": {
-        "followOffset": { "x": 20, "y": 0 },
+        "followOffset": { "x": 44, "y": 0 },
         "followSpeed": 0.2,
         "followDistance": 40,
         "teleportDistance": 300

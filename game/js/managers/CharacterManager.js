@@ -23,6 +23,12 @@ class CharacterManager {
     }
 
     update(inputManager) {
+        // Only process movement/switching while actively playing (frozen on
+        // gameOver and levelComplete).
+        if (this.scene.gameStateManager.getState().gameState !== 'playing') {
+            return;
+        }
+
         // Handle character switching
         if (inputManager.isPressed('switch') && !this.switchCooldown) {
             this.switchCharacter();
@@ -200,6 +206,18 @@ class CharacterManager {
 
             this.scene.time.delayedCall(switchConfig.lifespan + 100, () => emitter.destroy());
         }
+    }
+
+    // Kill both characters together (main dies => shadow dies) and end the game.
+    killAll() {
+        if (this.scene.gameStateManager.getState().gameState === 'gameOver') {
+            return;
+        }
+
+        if (this.mainCharacter) this.mainCharacter.die();
+        if (this.shadowCharacter) this.shadowCharacter.die();
+
+        this.scene.gameStateManager.updateState({ gameState: 'gameOver' });
     }
 
     getActiveCharacter() {

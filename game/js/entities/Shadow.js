@@ -29,6 +29,9 @@ class Shadow {
         this.sprite.setSize(characterConfig.hitboxWidth, characterConfig.hitboxHeight);
         this.sprite.setOffset(characterConfig.hitboxOffsetX, characterConfig.hitboxOffsetY);
         this.sprite.setAlpha(this.config.VISUAL.baseAlpha); // Semi-transparent
+        // Render above the player sprite (depth 0) and the cast-shadow
+        // polygons (depth -5) so the shadow is never hidden behind them.
+        this.sprite.setDepth(5);
 
         // Shadow physics properties from config
         this.maxSpeed = physicsConfig.maxSpeed;
@@ -77,6 +80,7 @@ class Shadow {
         this.facingDirection = 1;
         this.movementState = 'idle';
         this.isActive = false;
+        this.isDead = false;
         this.trailEmitter = null;
         this.glowEffect = null;
         this.inShadowZone = false;
@@ -132,12 +136,24 @@ class Shadow {
     enablePhysics() {
         this.physicsEnabled = true;
         this.sprite.body.setEnable(true);
+        // Restore full physics simulation now that the shadow is controlled.
+        this.sprite.body.moves = true;
+        this.sprite.body.setAllowGravity(true);
         this.sprite.setCollideWorldBounds(true);
     }
 
     disablePhysics() {
         this.physicsEnabled = false;
         this.sprite.body.setEnable(false);
+        // While following, position is driven by the follow lerp via
+        // setPosition(). Adding the sprite to a physics group (in
+        // GameScene.setupCollisions) re-enables the body, so disabling it is
+        // not enough on its own: we must also stop gravity and integration and
+        // zero velocity, or the body falls at terminal velocity and drags the
+        // shadow off the world the moment control is taken.
+        this.sprite.body.setVelocity(0, 0);
+        this.sprite.body.moves = false;
+        this.sprite.body.setAllowGravity(false);
         this.sprite.setCollideWorldBounds(false);
     }
 
@@ -175,6 +191,13 @@ class Shadow {
 
         this.isActive = true;
         this.stopFollowing();
+
+        // Force full visibility on activation. stopFollowing() already restores
+        // alpha/tint, but we set it again explicitly (and ensure the sprite is
+        // visible and at its own depth) so the player never "loses" the shadow
+        // when taking control of it.
+        this.sprite.setVisible(true);
+        this.sprite.setDepth(5);
         this.sprite.setAlpha(visualConfig.activeAlpha);
         this.sprite.setTint(parseInt(visualConfig.activeTint));
 
@@ -189,8 +212,35 @@ class Shadow {
         const visualConfig = this.config.VISUAL;
 
         this.isActive = false;
+        // Stop horizontal drift and force idle when control leaves the shadow.
+        if (this.sprite.body) {
+            this.sprite.body.velocity.x = 0;
+        }
+        this.movementState = 'idle';
         this.sprite.setAlpha(visualConfig.inactiveAlpha);
         this.sprite.setTint(parseInt(visualConfig.inactiveTint));
+
+        if (this.trailEmitter) {
+            this.trailEmitter.stop();
+        }
+
+        if (this.glowEffect) {
+            this.glowEffect.clear();
+        }
+    }
+
+    die() {
+        if (this.isDead) return;
+        this.isDead = true;
+        this.isActive = false;
+        this.isFollowing = false;
+        this.followTarget = null;
+        this.movementState = 'idle';
+        if (this.sprite.body) {
+            this.sprite.body.setVelocity(0, 0);
+        }
+        this.disablePhysics();
+        this.sprite.setVisible(false);
 
         if (this.trailEmitter) {
             this.trailEmitter.stop();
@@ -241,6 +291,9 @@ class Shadow {
     }
 
     update(inputManager) {
+        // Dead characters stop processing entirely
+        if (this.isDead) return;
+
         if (this.isFollowing) {
             this.updateFollowing();
         } else if (this.isActive) {

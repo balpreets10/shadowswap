@@ -69,6 +69,7 @@ class Player {
         this.facingDirection = 1; // 1 for right, -1 for left
         this.movementState = 'idle';
         this.isActive = true; // Add active state
+        this.isDead = false;
     }
 
     // Add activation methods
@@ -81,12 +82,30 @@ class Player {
 
     deactivate() {
         this.isActive = false;
+        // Stop horizontal drift and force idle so the character doesn't keep
+        // moving after control leaves it (vertical velocity is left alone so
+        // gravity still applies).
+        this.sprite.body.velocity.x = 0;
+        this.movementState = 'idle';
         const visualConfig = this.config.VISUAL;
         this.sprite.setAlpha(visualConfig.inactiveAlpha);
         this.sprite.setTint(parseInt(visualConfig.inactiveTint));
     }
 
+    die() {
+        if (this.isDead) return;
+        this.isDead = true;
+        this.isActive = false;
+        this.movementState = 'idle';
+        this.sprite.body.setVelocity(0, 0);
+        this.sprite.body.setEnable(false);
+        this.sprite.setVisible(false);
+    }
+
     update(inputManager) {
+        // Dead characters stop processing entirely
+        if (this.isDead) return;
+
         // Only handle input when active
         if (this.isActive) {
             this.handleInput(inputManager);

@@ -1,0 +1,32 @@
+- generic [ref=e2]:
+  - generic:
+    - generic:
+      - generic:
+        - generic: Main
+      - generic:
+        - generic: Shadow
+    - generic:
+      - heading "Controls" [level=3]
+      - generic:
+        - generic: WASD
+        - generic: Move Character
+      - generic:
+        - generic: SPACE
+        - generic: Jump
+      - generic:
+        - generic: F
+        - generic: Switch Characters
+      - generic:
+        - generic: S/↓
+        - generic: Drop Through Platform
+    - generic:
+      - heading "Light System Debug" [level=3]
+      - generic:
+        - generic: "Lights: 0"
+        - generic: "Shadow Zones: 0"
+        - generic: "Quality: High"
+        - generic: "FPS: 60"
+  - generic [ref=e5]:
+    - heading "Shadow Swap" [level=1] [ref=e6]
+    - paragraph [ref=e7]: Loading game configuration...
+    - paragraph [ref=e10]: Ready to play!

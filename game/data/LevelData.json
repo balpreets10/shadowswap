@@ -2,11 +2,11 @@
     "metadata": {
         "levelId": "level_001",
         "name": "Shadow Awakening",
-        "description": "Learn to master the interplay between light and shadow",
+        "description": "A 4-beat tutorial: Walk & Jump, The Swap, Shadow Road, Coordinate. Every beat is unsolvable as the Main alone.",
         "difficulty": "tutorial",
         "estimatedTime": 300,
         "author": "Shadow Swap Dev Team",
-        "version": "1.0.0"
+        "version": "2.0.0"
     },
     "world": {
         "width": 1600,
@@ -16,74 +16,146 @@
         "ambientLight": 0.2,
         "fogOfWar": false
     },
+    "spawnPoints": {
+        "main": {
+            "x": 120,
+            "y": 980,
+            "facing": "right"
+        },
+        "shadow": {
+            "x": 170,
+            "y": 980,
+            "facing": "right",
+            "followingMain": true
+        }
+    },
     "platforms": [
         {
-            "id": "ground_main",
+            "id": "ground_a",
             "type": "ground",
             "x": 0,
-            "y": 1100,
-            "width": 800,
-            "height": 100,
+            "y": 1040,
+            "width": 560,
+            "height": 160,
             "material": "stone",
             "texture": "platform-ground"
         },
         {
-            "id": "ground_end",
-            "type": "ground",
-            "x": 1000,
-            "y": 1100,
-            "width": 600,
-            "height": 100,
-            "material": "stone",
-            "texture": "platform-ground"
-        },
-        {
-            "id": "float_1",
+            "id": "ledge_a",
             "type": "float",
-            "x": 300,
-            "y": 900,
-            "width": 200,
-            "height": 16,
+            "x": 360,
+            "y": 940,
+            "width": 140,
+            "height": 20,
             "material": "wood",
             "texture": "platform-float"
         },
+
         {
-            "id": "oneway_tutorial",
+            "id": "bridge_shadow",
+            "type": "shadowOnly",
+            "x": 560,
+            "y": 1010,
+            "width": 260,
+            "height": 20,
+            "material": "shadow",
+            "texture": "platform-shadow"
+        },
+        {
+            "id": "bridge_revealed",
+            "type": "float",
+            "x": 560,
+            "y": 1010,
+            "width": 260,
+            "height": 20,
+            "material": "wood",
+            "texture": "platform-float",
+            "hidden": true
+        },
+        {
+            "id": "ground_b",
+            "type": "ground",
+            "x": 820,
+            "y": 1040,
+            "width": 240,
+            "height": 160,
+            "material": "stone",
+            "texture": "platform-ground"
+        },
+
+        {
+            "id": "ground_c",
+            "type": "ground",
+            "x": 1060,
+            "y": 1040,
+            "width": 300,
+            "height": 160,
+            "material": "stone",
+            "texture": "platform-ground"
+        },
+        {
+            "id": "wall_c",
+            "type": "ground",
+            "x": 1140,
+            "y": 560,
+            "width": 48,
+            "height": 340,
+            "material": "stone",
+            "texture": "platform-ground"
+        },
+        {
+            "id": "gate_c",
+            "type": "ground",
+            "x": 1140,
+            "y": 900,
+            "width": 48,
+            "height": 140,
+            "material": "stone",
+            "texture": "platform-ground"
+        },
+
+        {
+            "id": "ground_d",
+            "type": "ground",
+            "x": 1360,
+            "y": 1040,
+            "width": 240,
+            "height": 160,
+            "material": "stone",
+            "texture": "platform-ground"
+        },
+        {
+            "id": "litpath_1",
             "type": "oneWay",
-            "x": 600,
-            "y": 750,
-            "width": 200,
-            "height": 8,
+            "x": 1180,
+            "y": 980,
+            "width": 70,
+            "height": 12,
             "material": "ethereal",
             "texture": "platform-oneway",
-            "tutorial": {
-                "message": "Jump up through this platform, but you can land on top!",
-                "trigger": "approach"
-            }
+            "hidden": true
         },
         {
-            "id": "shadow_platform_1",
-            "type": "shadowOnly",
-            "x": 1350,
-            "y": 600,
-            "width": 150,
-            "height": 16,
-            "material": "shadow",
-            "texture": "platform-shadow",
-            "tutorial": {
-                "message": "Only your shadow can use these purple platforms!",
-                "trigger": "shadow_approach"
-            }
+            "id": "litpath_2",
+            "type": "oneWay",
+            "x": 1270,
+            "y": 940,
+            "width": 70,
+            "height": 12,
+            "material": "ethereal",
+            "texture": "platform-oneway",
+            "hidden": true
         },
         {
-            "id": "challenge_float",
-            "type": "float",
-            "x": 800,
-            "y": 500,
-            "width": 200,
-            "height": 16,
-            "material": "wood",
-            "texture": "platform-float"
+            "id": "litpath_3",
+            "type": "oneWay",
+            "x": 1360,
+            "y": 980,
+            "width": 70,
+            "height": 12,
+            "material": "ethereal",
+            "texture": "platform-oneway",
+            "hidden": true
         }
     ],
     "lightSources": [
@@ -91,231 +163,92 @@
             "id": "start_torch",
             "type": "torch",
             "x": 200,
-            "y": 1000,
+            "y": 980,
             "intensity": 1.0,
             "radius": 120,
             "color": "#FFAA44",
             "animated": true,
-            "initialState": "active",
-            "tutorial": {
-                "message": "Light sources create shadows where your shadow character can move!",
-                "trigger": "first_visit"
-            }
+            "initialState": "active"
         },
         {
-            "id": "puzzle_lamp",
+            "id": "road_light",
             "type": "lamp",
-            "x": 450,
-            "y": 650,
-            "intensity": 0.8,
-            "radius": 100,
-            "color": "#FFFFFF",
+            "x": 1240,
+            "y": 880,
+            "intensity": 1.0,
+            "radius": 220,
+            "color": "#FFD9A0",
             "animated": false,
-            "initialState": "active",
-            "interactive": true,
-            "switchId": "lamp_switch_1"
-        },
-        {
-            "id": "moving_beacon",
-            "type": "beacon",
-            "x": 1100,
-            "y": 300,
-            "intensity": 1.5,
-            "radius": 200,
-            "color": "#AAFFFF",
-            "animated": true,
-            "initialState": "active",
-            "movement": {
-                "type": "horizontal_swing",
-                "range": 200,
-                "speed": 2.0,
-                "startDirection": "right"
-            }
-        },
-        {
-            "id": "candle_cluster",
-            "type": "candle",
-            "x": 750,
-            "y": 450,
-            "intensity": 0.6,
-            "radius": 60,
-            "color": "#FFDD88",
-            "animated": true,
             "initialState": "active"
         }
     ],
     "interactiveElements": [
         {
-            "id": "lamp_switch_1",
+            "id": "switch_1",
+            "type": "shadowOnlySwitch",
+            "x": 760,
+            "y": 992,
+            "activatedBy": [
+                "shadow"
+            ],
+            "mode": "toggle",
+            "action": {
+                "kind": "revealPlatform",
+                "targets": [
+                    "bridge_revealed"
+                ]
+            }
+        },
+        {
+            "id": "switch_2",
             "type": "lightSwitch",
-            "x": 400,
-            "y": 750,
-            "targetLightId": "puzzle_lamp",
+            "x": 1164,
+            "y": 545,
             "activatedBy": [
                 "main",
                 "shadow"
             ],
-            "texture": "switch-off",
-            "activeTexture": "switch-on",
-            "tutorial": {
-                "message": "Switches can control light sources. Try turning this lamp on and off!",
-                "trigger": "approach"
+            "mode": "toggle",
+            "action": {
+                "kind": "openGate",
+                "targets": [
+                    "gate_c"
+                ]
             }
         },
         {
-            "id": "shadow_switch",
-            "type": "shadowOnlySwitch",
-            "x": 1400,
-            "y": 550,
-            "targetLightId": "secret_light",
+            "id": "switch_3",
+            "type": "lightSwitch",
+            "x": 1410,
+            "y": 1020,
             "activatedBy": [
+                "main",
                 "shadow"
             ],
-            "texture": "shadow-switch-off",
-            "activeTexture": "shadow-switch-on",
-            "tutorial": {
-                "message": "Some switches can only be activated by your shadow!",
-                "trigger": "shadow_approach"
+            "mode": "hold",
+            "action": {
+                "kind": "toggleLitPath",
+                "targets": [
+                    "litpath_1",
+                    "litpath_2",
+                    "litpath_3"
+                ]
             }
         }
     ],
-    "spawnPoints": {
-        "main": {
-            "x": 100,
-            "y": 1000,
-            "facing": "right"
-        },
-        "shadow": {
-            "x": 120,
-            "y": 1000,
-            "facing": "right",
-            "followingMain": true
-        }
+    "portal": {
+        "id": "exit_portal",
+        "x": 1540,
+        "y": 990,
+        "radius": 50
     },
     "objectives": [
         {
-            "id": "learn_switching",
-            "type": "tutorial",
-            "description": "Learn to switch between main character and shadow",
-            "condition": "character_switch_count >= 3",
-            "required": true
-        },
-        {
-            "id": "use_shadow_zones",
-            "type": "tutorial",
-            "description": "Move your shadow character through shadow zones",
-            "condition": "shadow_in_zone_time >= 5000",
-            "required": true
-        },
-        {
-            "id": "activate_switch",
-            "type": "puzzle",
-            "description": "Activate the lamp switch",
-            "condition": "switch_lamp_switch_1_activated",
-            "required": true
-        },
-        {
-            "id": "reach_end",
+            "id": "reach_portal",
             "type": "goal",
-            "description": "Reach the end of the level",
-            "condition": "main_character_x >= 1400",
+            "description": "Guide the Main through the exit portal",
+            "condition": "main_reached_portal",
             "required": true
-        }
-    ],
-    "tutorial": {
-        "enabled": true,
-        "autoTrigger": true,
-        "steps": [
-            {
-                "id": "movement_intro",
-                "trigger": "level_start",
-                "delay": 2000,
-                "message": "Use WASD or arrow keys to move. Press SPACE to jump.",
-                "duration": 4000,
-                "position": "bottom_center"
-            },
-            {
-                "id": "character_switch_intro",
-                "trigger": "movement_detected",
-                "message": "Press F to switch between your main character and shadow!",
-                "duration": 5000,
-                "position": "top_center",
-                "highlight": "f_key"
-            },
-            {
-                "id": "shadow_zone_intro",
-                "trigger": "near_light_source",
-                "message": "Light sources create shadow zones (purple areas) where only your shadow can move!",
-                "duration": 6000,
-                "position": "center",
-                "highlight": "shadow_zones"
-            },
-            {
-                "id": "platform_types",
-                "trigger": "near_oneway_platform",
-                "message": "Green platforms can be jumped through from below. Hold S to drop through them!",
-                "duration": 5000,
-                "position": "bottom_center"
-            }
-        ]
-    },
-    "backgroundElements": [
-        {
-            "type": "pillar",
-            "x": 1400,
-            "y": 800,
-            "width": 40,
-            "height": 400,
-            "color": "#2c3e50",
-            "alpha": 0.3,
-            "layer": "background"
-        },
-        {
-            "type": "crystal",
-            "x": 300,
-            "y": 200,
-            "animation": "float",
-            "color": "#9C27B0",
-            "alpha": 0.1,
-            "layer": "background"
-        },
-        {
-            "type": "crystal",
-            "x": 800,
-            "y": 150,
-            "animation": "float",
-            "color": "#9C27B0",
-            "alpha": 0.1,
-            "layer": "background"
-        }
-    ],
-    "ambientEffects": [
-        {
-            "type": "particles",
-            "particleType": "switch-particle",
-            "x": {
-                "min": 0,
-                "max": 1600
-            },
-            "y": {
-                "min": 0,
-                "max": 400
-            },
-            "scale": {
-                "start": 0.1,
-                "end": 0
-            },
-            "alpha": {
-                "start": 0.3,
-                "end": 0
-            },
-            "speed": {
-                "min": 10,
-                "max": 30
-            },
-            "lifespan": 8000,
-            "frequency": 2000,
-            "quantity": 1
         }
     ],
     "levelSettings": {
@@ -337,21 +270,5 @@
         }
     },
     "nextLevel": "level_002",
-    "previousLevel": null,
-    "achievements": [
-        {
-            "id": "speed_run",
-            "name": "Shadow Speedster",
-            "description": "Complete the level in under 2 minutes",
-            "condition": "completion_time < 120000",
-            "points": 100
-        },
-        {
-            "id": "no_violations",
-            "name": "Shadow Master",
-            "description": "Complete without any shadow zone violations",
-            "condition": "shadow_violations == 0",
-            "points": 150
-        }
-    ]
+    "previousLevel": null
 }

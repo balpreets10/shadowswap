@@ -12,6 +12,7 @@ class GameScene extends Phaser.Scene {
         this.lightSourceManager = new LightSourceManager(this);
         this.shadowZoneDetector = new ShadowZoneDetector(this, this.lightSourceManager);
         this.performanceProfiler = new PerformanceProfiler(this);
+        this.levelManager = new LevelManager(this, this.lightSourceManager);
     }
 
     preload() {
@@ -20,11 +21,13 @@ class GameScene extends Phaser.Scene {
 
     create() {
         this.setupWorld();
-        this.createLevel();
-        this.createLightSources();
+        // Characters and their collision groups must exist before platforms are
+        // built, because LevelManager registers each platform's colliders against
+        // them (and may build more platforms at runtime via switches).
         this.createCharacters();
+        this.setupCollisionGroups();
+        this.createLevel();
         this.setupInput();
-        this.setupCollisions();
         this.setupCamera();
         this.setupUI();
         this.setupParticles();
@@ -38,7 +41,13 @@ class GameScene extends Phaser.Scene {
 
     setupWorld() {
         this.physics.world.setBounds(0, 0, 1600, 1200);
+        // Open the bottom bound so characters can fall out of the world (left,
+        // right, top stay closed). The kill-plane below handles the death.
+        this.physics.world.setBoundsCollision(true, true, true, false);
         this.physics.world.gravity.y = 800;
+
+        // Y below the world bottom (1200); falling past this kills the player.
+        this.DEATH_Y = 1300;
 
         // Create a gradient background
         this.add.rectangle(800, 600, 1600, 1200, 0x1a1a2e);
@@ -50,50 +59,18 @@ class GameScene extends Phaser.Scene {
     }
 
     createLevel() {
+        // Master list of all live platforms. LevelManager builds them from
+        // LevelData.json (platforms, light sources, switches, portal) and calls
+        // back into registerPlatformCollisions() for each one, including any it
+        // reveals at runtime via switches.
         this.platforms = [];
 
-        // Ground platforms with enhanced design
-        this.platforms.push(new Platform(this, 0, 1100, 800, 100, 'ground'));
-        this.platforms.push(new Platform(this, 1000, 1100, 600, 100, 'ground'));
-
-        // Solid floating platforms
-        this.platforms.push(new Platform(this, 300, 900, 200, 16, 'float'));
-        this.platforms.push(new Platform(this, 800, 500, 200, 16, 'float'));
-        this.platforms.push(new Platform(this, 1200, 800, 200, 16, 'float'));
-
-        // One-way platforms (can jump through from below)
-        this.platforms.push(new Platform(this, 600, 750, 200, 8, 'oneWay'));
-        this.platforms.push(new Platform(this, 200, 600, 150, 8, 'oneWay'));
-        this.platforms.push(new Platform(this, 900, 650, 150, 8, 'oneWay'));
-        this.platforms.push(new Platform(this, 450, 400, 200, 8, 'oneWay'));
-
-        // Complex platform arrangements for testing collision edge cases
-        this.platforms.push(new Platform(this, 700, 300, 64, 16, 'float')); // Single tile platform
-        this.platforms.push(new Platform(this, 500, 200, 300, 8, 'oneWay')); // Long one-way platform
-
-        // Staggered platforms for advanced movement
-        for (let i = 0; i < 5; i++) {
-            this.platforms.push(new Platform(this, 1000 + (i * 80), 350 - (i * 60), 64, 8, 'oneWay'));
-        }
-
-        // Register platforms as obstacles for shadow casting
-        this.platforms.forEach(platform => {
-            this.lightSourceManager.registerObstacle(platform);
-        });
+        // build() instantiates initial platforms (registering their colliders +
+        // obstacles through this scene), lights, switches, and the exit portal.
+        this.levelManager.build();
 
         // Add some background elements for depth
         this.createBackgroundElements();
-    }
-
-    createLightSources() {
-        // Add various light sources to demonstrate shadow casting
-        this.lightSourceManager.addLightSource('torch1', 400, 850, 'torch');
-        this.lightSourceManager.addLightSource('lamp1', 150, 550, 'lamp');
-        this.lightSourceManager.addLightSource('beacon1', 1100, 300, 'beacon');
-        this.lightSourceManager.addLightSource('candle1', 750, 250, 'candle');
-
-        // Add a torch that illuminates the starting area
-        this.lightSourceManager.addLightSource('start_torch', 200, 1000, 'torch');
     }
 
     createBackgroundElements() {
@@ -125,8 +102,15 @@ class GameScene extends Phaser.Scene {
     }
 
     createCharacters() {
-        this.player = new Player(this, 100, 1000);
-        this.shadow = new Shadow(this, 120, 1000);
+        // Spawn points come from LevelData (center coords); fall back to the
+        // historical defaults if absent.
+        const levelData = window.GameConfig.getConfig('LevelData');
+        const spawns = (levelData && levelData.spawnPoints) || {};
+        const mainSpawn = spawns.main || { x: 100, y: 1000 };
+        const shadowSpawn = spawns.shadow || { x: 120, y: 1000 };
+
+        this.player = new Player(this, mainSpawn.x, mainSpawn.y);
+        this.shadow = new Shadow(this, shadowSpawn.x, shadowSpawn.y);
 
         this.characterManager.initialize(this.player, this.shadow);
     }
@@ -135,7 +119,10 @@ class GameScene extends Phaser.Scene {
         this.inputManager.init(this);
     }
 
-    setupCollisions() {
+    // Set up character collision groups, categories, and one-way drop controls.
+    // Platforms are registered separately (per-platform) by LevelManager so that
+    // both the initial build and runtime reveals share one code path.
+    setupCollisionGroups() {
         // Initialize collision groups for different character types
         this.mainCharacterGroup = this.physics.add.group();
         this.shadowCharacterGroup = this.physics.add.group();
@@ -147,41 +134,61 @@ class GameScene extends Phaser.Scene {
         // Set up collision categories for characters
         this.setupCharacterCollisionCategories();
 
-        // Platform collision setup
-        this.platforms.forEach(platform => {
-            const platformGroup = platform.getPhysicsGroup();
-            const platformType = platform.getType();
-            const platformConfig = platform.getConfig();
-
-            // Main character collisions - can't use shadow-only platforms
-            if (platformType !== 'shadowOnly') {
-                if (platformType === 'oneWay') {
-                    this.physics.add.collider(
-                        this.player.sprite,
-                        platformGroup,
-                        null,
-                        (player, tile) => platform.handleOneWayCollision(this.player, tile)
-                    );
-                } else {
-                    this.physics.add.collider(this.player.sprite, platformGroup);
-                }
-            }
-
-            // Shadow character collisions - can use all platform types
-            if (platformType === 'oneWay') {
-                this.physics.add.collider(
-                    this.shadow.sprite,
-                    platformGroup,
-                    null,
-                    (shadow, tile) => platform.handleOneWayCollision(this.shadow, tile)
-                );
-            } else {
-                this.physics.add.collider(this.shadow.sprite, platformGroup);
-            }
-        });
-
         // Set up drop-through controls for one-way platforms
         this.setupOneWayControls();
+    }
+
+    // Register a single platform's colliders against both characters and add it
+    // to the master platform list. Called by LevelManager for every platform,
+    // including ones revealed at runtime via switches. Colliders are stored on
+    // the platform so they can be torn down in unregisterPlatform().
+    registerPlatformCollisions(platform) {
+        const platformGroup = platform.getPhysicsGroup();
+        const platformType = platform.getType();
+        platform._colliders = [];
+
+        // Main character collisions - can't use shadow-only platforms
+        if (platformType !== 'shadowOnly') {
+            if (platformType === 'oneWay') {
+                platform._colliders.push(this.physics.add.collider(
+                    this.player.sprite,
+                    platformGroup,
+                    null,
+                    (player, tile) => platform.handleOneWayCollision(this.player, tile)
+                ));
+            } else {
+                platform._colliders.push(this.physics.add.collider(this.player.sprite, platformGroup));
+            }
+        }
+
+        // Shadow character collisions - can use all platform types
+        if (platformType === 'oneWay') {
+            platform._colliders.push(this.physics.add.collider(
+                this.shadow.sprite,
+                platformGroup,
+                null,
+                (shadow, tile) => platform.handleOneWayCollision(this.shadow, tile)
+            ));
+        } else {
+            platform._colliders.push(this.physics.add.collider(this.shadow.sprite, platformGroup));
+        }
+
+        if (!this.platforms.includes(platform)) {
+            this.platforms.push(platform);
+        }
+    }
+
+    // Tear down a platform's colliders and drop it from the master list. Used
+    // when a switch opens a gate or a hold-switch hides its lit path.
+    unregisterPlatform(platform) {
+        if (platform._colliders) {
+            platform._colliders.forEach(c => {
+                if (c) this.physics.world.removeCollider(c);
+            });
+            platform._colliders = [];
+        }
+        const idx = this.platforms.indexOf(platform);
+        if (idx !== -1) this.platforms.splice(idx, 1);
     }
 
     setupShadowZoneDetection() {
@@ -291,8 +298,19 @@ class GameScene extends Phaser.Scene {
             lineSpacing: 4
         }).setScrollFactor(0);
 
+        // Player-facing shadow-zone status. Tells the player, in plain words,
+        // what the current shadow zone is doing to the active shadow so the
+        // mechanic reads as a rule rather than as lag.
+        this.shadowStatusText = this.add.text(20, 175, '', {
+            fontSize: '13px',
+            color: '#CE93D8',
+            backgroundColor: 'rgba(20, 0, 30, 0.7)',
+            padding: { x: 10, y: 5 },
+            fontStyle: 'bold'
+        }).setScrollFactor(0).setVisible(false);
+
         // Debug info
-        this.debugText = this.add.text(10, 200, '', {
+        this.debugText = this.add.text(10, 220, '', {
             fontSize: '11px',
             color: '#00ff88',
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -306,6 +324,35 @@ class GameScene extends Phaser.Scene {
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
             padding: { x: 8, y: 4 }
         }).setScrollFactor(0);
+
+        // Game over overlay (created hidden, shown on gameOver state)
+        const cam = this.cameras.main;
+        this.gameOverText = this.add.text(cam.width / 2, cam.height / 2, 'GAME OVER', {
+            fontSize: '64px',
+            color: '#ff4444',
+            fontFamily: 'Arial',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 6
+        })
+            .setOrigin(0.5)
+            .setScrollFactor(0)
+            .setDepth(1000)
+            .setVisible(false);
+
+        // Level complete overlay (created hidden, shown on levelComplete state)
+        this.levelCompleteText = this.add.text(cam.width / 2, cam.height / 2, 'LEVEL COMPLETE', {
+            fontSize: '56px',
+            color: '#AAFFFF',
+            fontFamily: 'Arial',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 6
+        })
+            .setOrigin(0.5)
+            .setScrollFactor(0)
+            .setDepth(1000)
+            .setVisible(false);
 
         // Subscribe to state changes
         this.gameStateManager.subscribe((state) => {
@@ -371,6 +418,11 @@ class GameScene extends Phaser.Scene {
     }
 
     updateUI(state) {
+        // Show/hide the game over overlay
+        if (this.gameOverText) {
+            this.gameOverText.setVisible(state.gameState === 'gameOver');
+        }
+
         if (state.activeCharacter === 'main') {
             this.mainIndicator.setTexture('ui-main-active');
             this.shadowIndicator.setTexture('ui-inactive');
@@ -388,6 +440,15 @@ class GameScene extends Phaser.Scene {
         // Profile the update loop
         const updateProfile = this.performanceProfiler.startProfiling('scene', 'update');
 
+        // Either character falling off the world kills both (game over). The
+        // shadow is only physics-driven while controlled; when following its
+        // body is frozen, so this guard only fires for a genuine fall.
+        if (this.gameStateManager.getState().gameState === 'playing' &&
+            (this.player.sprite.y > this.DEATH_Y ||
+             (!this.shadow.isFollowing && this.shadow.sprite.y > this.DEATH_Y))) {
+            this.characterManager.killAll();
+        }
+
         // Update all managers
         this.characterManager.update(this.inputManager);
 
@@ -401,10 +462,37 @@ class GameScene extends Phaser.Scene {
 
         this.performanceProfiler.update(time, delta);
 
+        // Drive level mechanics: poll switches against the active character and
+        // check whether the Main has reached the exit portal.
+        if (this.gameStateManager.getState().gameState === 'playing') {
+            const activeChar = this.characterManager.getActiveCharacter();
+            const activeType = this.characterManager.activeCharacter;
+            this.levelManager.update(activeChar, activeType);
+
+            if (this.levelManager.checkWin(this.player)) {
+                this.levelComplete();
+            }
+        }
+
         this.updateDebugInfo();
         this.updateLightDebugInfo();
 
         this.performanceProfiler.endProfiling(updateProfile);
+    }
+
+    // Win condition reached: freeze play and show the LEVEL COMPLETE overlay.
+    levelComplete() {
+        if (this.gameStateManager.getState().gameState === 'levelComplete') return;
+
+        this.gameStateManager.updateState({ gameState: 'levelComplete' });
+
+        // Freeze both characters in place.
+        if (this.player && this.player.sprite.body) this.player.sprite.body.setVelocity(0, 0);
+        if (this.shadow && this.shadow.sprite.body) this.shadow.sprite.body.setVelocity(0, 0);
+
+        if (this.levelCompleteText) {
+            this.levelCompleteText.setVisible(true);
+        }
     }
 
     updateDebugInfo() {
@@ -417,6 +505,9 @@ class GameScene extends Phaser.Scene {
         // Check shadow zone status
         const inShadowZone = this.lightSourceManager.isPointInShadowZone(activePos.x, activePos.y);
 
+        // Surface a clear, player-facing message about what zones are doing.
+        this.updateShadowStatus(charType, inShadowZone);
+
         this.debugText.setText([
             `Active: ${charType.toUpperCase()}`,
             `Pos: (${Math.round(activePos.x)}, ${Math.round(activePos.y)})`,
@@ -425,6 +516,30 @@ class GameScene extends Phaser.Scene {
             `State: ${activeChar.movementState}`,
             `In Shadow: ${inShadowZone}`
         ]);
+    }
+
+    updateShadowStatus(activeCharType, inShadowZone) {
+        // Only relevant while controlling the shadow.
+        if (activeCharType !== 'shadow') {
+            this.shadowStatusText.setVisible(false);
+            return;
+        }
+
+        this.shadowStatusText.setVisible(true);
+
+        if (inShadowZone) {
+            this.shadowStatusText.setText('IN SHADOW: empowered — full speed & jump');
+            this.shadowStatusText.setColor('#CE93D8');
+            this.shadowStatusText.setBackgroundColor('rgba(40, 0, 60, 0.7)');
+        } else if (this.shadow.shadowMovementRestricted) {
+            this.shadowStatusText.setText('IN LIGHT: weakened — reach a shadow to recover');
+            this.shadowStatusText.setColor('#FFCC66');
+            this.shadowStatusText.setBackgroundColor('rgba(60, 30, 0, 0.7)');
+        } else {
+            this.shadowStatusText.setText('IN LIGHT: hurry to a shadow before it weakens');
+            this.shadowStatusText.setColor('#FFDD99');
+            this.shadowStatusText.setBackgroundColor('rgba(40, 25, 0, 0.7)');
+        }
     }
 
     updateLightDebugInfo() {
